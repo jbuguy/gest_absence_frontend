@@ -9,9 +9,14 @@ class AppTheme {
       brightness: Brightness.light,
       primary: Colors.indigo,
       onPrimary: Colors.white,
-      surface: Colors.blueGrey,
+      surface: const Color(0xFFF8F9FF),
       surfaceContainerLow: Colors.white,
     ),
     textTheme: GoogleFonts.manropeTextTheme(),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      shape: RoundedRectangleBorder(),
+      color: Colors.white,
+    ),
   );
 }
