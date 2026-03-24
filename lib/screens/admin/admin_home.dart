@@ -10,17 +10,17 @@ class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
 
   @override
-  _AdminHomeState createState() => _AdminHomeState();
+  State<AdminHome> createState() => _AdminHomeState();
 }
 
 class _AdminHomeState extends State<AdminHome> {
   int _selectedIndex = 0;
-  
+
   // Initialisation des stats avec des valeurs par défaut
   Map<String, dynamic> stats = {
     "total_etudiants": "0",
     "total_enseignants": "0",
-    "absences_jour": "0"
+    "absences_jour": "0",
   };
 
   bool isLoading = true;
@@ -28,13 +28,15 @@ class _AdminHomeState extends State<AdminHome> {
   @override
   void initState() {
     super.initState();
-    fetchStats(); 
+    fetchStats();
   }
 
   Future<void> fetchStats() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2/gest_absence_api/admin/stats.php'));
-      
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2/gest_absence_api/admin/stats.php'),
+      );
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -79,11 +81,17 @@ class _AdminHomeState extends State<AdminHome> {
           });
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          NavigationDestination(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
           NavigationDestination(icon: Icon(Icons.school), label: 'Étudiants'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Enseignants'),
           NavigationDestination(icon: Icon(Icons.class_), label: 'Classes'),
-          NavigationDestination(icon: Icon(Icons.calendar_today), label: 'Séances'),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_today),
+            label: 'Séances',
+          ),
         ],
       ),
     );
@@ -94,7 +102,11 @@ class AdminDashboardContent extends StatelessWidget {
   final Function(int)? onNavigate;
   final Map<String, dynamic> stats; // Ajout pour recevoir les stats
 
-  const AdminDashboardContent({super.key, this.onNavigate, required this.stats});
+  const AdminDashboardContent({
+    super.key,
+    this.onNavigate,
+    required this.stats,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -110,11 +122,27 @@ class AdminDashboardContent extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("ADMINISTRATION", style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold, fontSize: 12)),
-                    const Text("Bonjour, M. Dupont", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    Text(
+                      "ADMINISTRATION",
+                      style: TextStyle(
+                        color: Colors.blue[900],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const Text(
+                      "Bonjour, M. Dupont",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
-                CircleAvatar(backgroundColor: Colors.orange[100], child: const Icon(Icons.person, color: Colors.orange)),
+                CircleAvatar(
+                  backgroundColor: Colors.orange[100],
+                  child: const Icon(Icons.person, color: Colors.orange),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -126,34 +154,84 @@ class AdminDashboardContent extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo[700],
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             const SizedBox(height: 30),
 
             // UTILISATION DES DONNÉES RÉELLES ICI
-            _buildStatCard("Total Étudiants", stats['total_etudiants'], Icons.group, Colors.blue, null),
-            _buildStatCard("Enseignants", stats['total_enseignants'], Icons.school, Colors.orange, null),
-            _buildStatCard("Absences du jour", stats['absences_jour'], Icons.warning, Colors.red, null),
-            
+            _buildStatCard(
+              "Total Étudiants",
+              stats['total_etudiants'],
+              Icons.group,
+              Colors.blue,
+              null,
+            ),
+            _buildStatCard(
+              "Enseignants",
+              stats['total_enseignants'],
+              Icons.school,
+              Colors.orange,
+              null,
+            ),
+            _buildStatCard(
+              "Absences du jour",
+              stats['absences_jour'],
+              Icons.warning,
+              Colors.red,
+              null,
+            ),
+
             const SizedBox(height: 30),
-            const Text("Accès Rapide", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Accès Rapide",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 15),
 
-            _buildQuickAccessItem(context, "Gestion Étudiants", "Inscriptions, Profils, Listes", Icons.person_add, () => onNavigate?.call(1)),
-            _buildQuickAccessItem(context, "Gestion Enseignants", "Planning, Affectations", Icons.assignment_ind, () => onNavigate?.call(2)),
-            _buildQuickAccessItem(context, "Planning des Séances", "Calendrier académique", Icons.calendar_month, () => onNavigate?.call(4)),
+            _buildQuickAccessItem(
+              context,
+              "Gestion Étudiants",
+              "Inscriptions, Profils, Listes",
+              Icons.person_add,
+              () => onNavigate?.call(1),
+            ),
+            _buildQuickAccessItem(
+              context,
+              "Gestion Enseignants",
+              "Planning, Affectations",
+              Icons.assignment_ind,
+              () => onNavigate?.call(2),
+            ),
+            _buildQuickAccessItem(
+              context,
+              "Planning des Séances",
+              "Calendrier académique",
+              Icons.calendar_month,
+              () => onNavigate?.call(4),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, String? trend) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    String? trend,
+  ) {
     return Card(
       elevation: 0,
       color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: Colors.grey[200]!)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
       margin: const EdgeInsets.only(bottom: 15),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -172,7 +250,13 @@ class AdminDashboardContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: TextStyle(color: Colors.grey[600])),
-                Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ],
@@ -181,7 +265,13 @@ class AdminDashboardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickAccessItem(BuildContext context, String title, String subtitle, IconData icon, VoidCallback onTap) {
+  Widget _buildQuickAccessItem(
+    BuildContext context,
+    String title,
+    String subtitle,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 10),
@@ -196,3 +286,4 @@ class AdminDashboardContent extends StatelessWidget {
     );
   }
 }
+

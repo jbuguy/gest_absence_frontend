@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/screens/etudiant_home.dart';
+import 'package:gest_absence_frontend/screens/admin/admin_home.dart';
 import 'package:gest_absence_frontend/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,6 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
       switch (user["role"]) {
         case "etudiant":
           screen = EtudiantHomeScreen();
+          break;
+        case "admin":
+          screen = AdminHome();
           break;
         default:
           ScaffoldMessenger.of(
