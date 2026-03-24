@@ -15,3 +15,22 @@ void main() async {
     ),
   );
 }
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "GestAbsence",
+      debugShowCheckedModeBanner: false,
+      // Activation obligatoire du Material Design 3 selon le sujet
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.indigo,
+      ),
+      // On affiche directement AdminHome pour vos tests locaux
+      home: AdminHome(), 
+    );
+  }
+}
