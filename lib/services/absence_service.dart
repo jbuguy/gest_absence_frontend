@@ -9,6 +9,9 @@ class AbsenceService {
     final response = await _api.get(ApiConfig.etudiantsAbsence, id: userId);
 
     if (response["success"] == 1) {
+      if (response["data"].length == 0) {
+        return [];
+      }
       final List<Map<String, dynamic>> data = response["data"];
       return data.map(Absence.fromJson).toList();
     }

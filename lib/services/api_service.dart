@@ -4,7 +4,9 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   Future<dynamic> get(String url, {int? id}) async {
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(
+      Uri.parse("$url${id != null ? "?id=$id" : ""}"),
+    );
     return _handleResponse(response);
   }
 
@@ -25,6 +27,7 @@ class ApiService {
   Future<dynamic> _handleResponse(http.Response response) async {
     final data = jsonDecode(response.body);
     if (response.statusCode == 200) {
+      print(data);
       return data;
     } else {
       throw Exception(data["message"] ?? "api error");

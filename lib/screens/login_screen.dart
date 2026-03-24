@@ -25,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text,
         _passwordController.text,
       );
-
       if (res["success"] == 0) {
         _showError(res["message"]);
         return;
@@ -34,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
       print("User: $user");
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt("user_id", user["user_id"]);
+      await prefs.setInt("user_id", user["id"]);
       await prefs.setString("role", user["role"]);
 
       if (!mounted) return;
