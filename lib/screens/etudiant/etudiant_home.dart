@@ -13,6 +13,7 @@ class EtudiantHomeScreen extends StatefulWidget {
 
 class _EtudiantHomeScreenState extends State<EtudiantHomeScreen> {
   late Future<List<Absence>> futureAbsences;
+  int _selectedIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -37,6 +38,21 @@ class _EtudiantHomeScreenState extends State<EtudiantHomeScreen> {
           leading: Icon(Icons.school_outlined),
           title: Text("GestAbsence"),
         ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          NavigationDestination(icon: Icon(Icons.person), label: 'profil'),
+        ],
       ),
       body: Column(
         children: [

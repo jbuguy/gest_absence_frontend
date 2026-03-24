@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gest_absence_frontend/screens/etudiant/etudiant_home.dart';
 import 'package:gest_absence_frontend/screens/admin/admin_home.dart';
 import 'package:gest_absence_frontend/screens/enseignant/enseignant_home.dart';
@@ -74,36 +75,67 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(24),
-          ),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(32),
           child: Column(
+            crossAxisAlignment: .start,
             children: [
-              ListTile(
-                leading: Icon(Icons.school_outlined),
-                title: Text("GestAbsence"),
+              Row(
+                children: [
+                  Icon(
+                    Icons.school,
+                    color: Theme.of(context).primaryColor,
+                    size: 32,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "GestAbsence",
+                    style: GoogleFonts.manrope(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 24,
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 48),
+              Text(
+                "Bienvenue sur GestAbsence",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(height: 12),
               Text(
                 "Veuillez entrer vos identifiants pour accéder au tableau de bord.",
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
               ),
+              const SizedBox(height: 40),
+              const Text(
+                "email professionnel",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.email_outlined),
-                  labelText: "email professionnel",
                   hintText: "prenom.nom@fsb.ucar.tn",
                 ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                "mot de passe",
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.lock_outlined),
-                  labelText: "mot de passe",
                   suffixIcon: IconButton(
                     onPressed: () =>
                         setState(() => _obscurePassword = !_obscurePassword),
@@ -115,6 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+
               Row(
                 children: [
                   Checkbox(
@@ -125,14 +158,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text("Rester connecte"),
                 ],
               ),
-              FilledButton(
-                onPressed: _login,
-                child: Row(
-                  children: [
-                    Text("connecter"),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward),
-                  ],
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _login,
+                  child: const Row(
+                    mainAxisAlignment: .center,
+                    children: [
+                      Text("connecter"),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward),
+                    ],
+                  ),
                 ),
               ),
             ],
