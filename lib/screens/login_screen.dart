@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gest_absence_frontend/screens/auth_service.dart';
+import 'package:gest_absence_frontend/screens/etudiant_home.dart';
+import 'package:gest_absence_frontend/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,13 +25,34 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text,
         _passwordController.text,
       );
-
-      if (res["success"] == 1) {
-        final user = res["user"];
-        print("User: $user");
-      } else {
+      if (res["success"] == 0) {
         _showError(res["message"]);
+        return;
       }
+      final user = res["user"];
+      print("User: $user");
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt("user_id", user["id"]);
+      await prefs.setString("role", user["role"]);
+
+      if (!mounted) return;
+
+      Widget screen;
+      switch (user["role"]) {
+        case "etudiant":
+          screen = EtudiantHomeScreen();
+          break;
+        default:
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("unknown role")));
+          return;
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => screen),
+      );
     } catch (e) {
       _showError(e.toString());
     }
