@@ -6,6 +6,6 @@ class AdminService {
 
   Future<Map<String, dynamic>> getStats() async {
     final response = await _api.get(ApiConfig.adminStats);
-    return response;
+    return response["data"];
   }
 }

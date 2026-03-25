@@ -8,6 +8,7 @@ class ClasseService {
   Future<List<Classe>> getClasses() async {
     final response = await _api.get(ApiConfig.classes);
     if (response["success"] == 1) {
+      print(response);
       final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
         response["data"],
       );

@@ -1,122 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:gest_absence_frontend/services/admin_service.dart';
 
 class AdminDashboardContent extends StatelessWidget {
-  final Function(int)? onNavigate;
-  final Map<String, dynamic> stats; // Ajout pour recevoir les stats
+  final ValueChanged<int>? onNavigate;
 
-  const AdminDashboardContent({
-    super.key,
-    this.onNavigate,
-    required this.stats,
-  });
+  const AdminDashboardContent({super.key, this.onNavigate});
+
+  Future<Map<String, dynamic>> _fetchStats() async {
+    final adminService = AdminService();
+    try {
+      final data = await adminService.getStats();
+      print(data);
+      return {
+        "total_etudiants": (data['total_etudiants']).toString(),
+        "total_enseignants": (data['total_enseignants']).toString(),
+        "absences_jour": (data['absences_jour']).toString(),
+      };
+    } catch (e) {
+      print("Erreur stats: $e");
+      return {
+        "total_etudiants": "0",
+        "total_enseignants": "0",
+        "absences_jour": "0",
+      };
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _fetchStats(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return const Center(
+            child: Text("Erreur lors du chargement des statistiques"),
+          );
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: Text("Aucune donnée disponible"));
+        }
+
+        final stats = snapshot.data!;
+
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "ADMINISTRATION",
-                      style: TextStyle(
-                        color: Colors.blue[900],
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "ADMINISTRATION",
+                          style: TextStyle(
+                            color: Colors.blue[900],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const Text(
+                          "Bonjour, M. Dupont",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Text(
-                      "Bonjour, M. Dupont",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    CircleAvatar(
+                      backgroundColor: Colors.orange[100],
+                      child: const Icon(Icons.person, color: Colors.orange),
                     ),
                   ],
                 ),
-                CircleAvatar(
-                  backgroundColor: Colors.orange[100],
-                  child: const Icon(Icons.person, color: Colors.orange),
+                const SizedBox(height: 20),
+
+                ElevatedButton.icon(
+                  onPressed: () => onNavigate?.call(4),
+                  icon: const Icon(Icons.add),
+                  label: const Text("Nouvelle Séance"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo[700],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // UTILISATION DES DONNÉES RÉELLES ICI
+                _buildStatCard(
+                  "Total Étudiants",
+                  stats['total_etudiants'],
+                  Icons.group,
+                  Colors.blue,
+                  null,
+                ),
+                _buildStatCard(
+                  "Enseignants",
+                  stats['total_enseignants'],
+                  Icons.school,
+                  Colors.orange,
+                  null,
+                ),
+                _buildStatCard(
+                  "Absences du jour",
+                  stats['absences_jour'],
+                  Icons.warning,
+                  Colors.red,
+                  null,
+                ),
+
+                const SizedBox(height: 30),
+                const Text(
+                  "Accès Rapide",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 15),
+
+                _buildQuickAccessItem(
+                  context,
+                  "Gestion Étudiants",
+                  "Inscriptions, Profils, Listes",
+                  Icons.person_add,
+                  () => onNavigate?.call(1),
+                ),
+                _buildQuickAccessItem(
+                  context,
+                  "Gestion Enseignants",
+                  "Planning, Affectations",
+                  Icons.assignment_ind,
+                  () => onNavigate?.call(2),
+                ),
+                _buildQuickAccessItem(
+                  context,
+                  "Planning des Séances",
+                  "Calendrier académique",
+                  Icons.calendar_month,
+                  () => onNavigate?.call(4),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-
-            ElevatedButton.icon(
-              onPressed: () => onNavigate?.call(4),
-              icon: const Icon(Icons.add),
-              label: const Text("Nouvelle Séance"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo[700],
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            // UTILISATION DES DONNÉES RÉELLES ICI
-            _buildStatCard(
-              "Total Étudiants",
-              stats['total_etudiants'],
-              Icons.group,
-              Colors.blue,
-              null,
-            ),
-            _buildStatCard(
-              "Enseignants",
-              stats['total_enseignants'],
-              Icons.school,
-              Colors.orange,
-              null,
-            ),
-            _buildStatCard(
-              "Absences du jour",
-              stats['absences_jour'],
-              Icons.warning,
-              Colors.red,
-              null,
-            ),
-
-            const SizedBox(height: 30),
-            const Text(
-              "Accès Rapide",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 15),
-
-            _buildQuickAccessItem(
-              context,
-              "Gestion Étudiants",
-              "Inscriptions, Profils, Listes",
-              Icons.person_add,
-              () => onNavigate?.call(1),
-            ),
-            _buildQuickAccessItem(
-              context,
-              "Gestion Enseignants",
-              "Planning, Affectations",
-              Icons.assignment_ind,
-              () => onNavigate?.call(2),
-            ),
-            _buildQuickAccessItem(
-              context,
-              "Planning des Séances",
-              "Calendrier académique",
-              Icons.calendar_month,
-              () => onNavigate?.call(4),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

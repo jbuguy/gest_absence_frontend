@@ -14,7 +14,7 @@ class Utilisateur {
       id: json["user_id"],
       nom: json["nom"],
       prenom: json["prenom"],
-      role: json["role"],
+      role: json["role"] ?? "",
     );
   }
 }

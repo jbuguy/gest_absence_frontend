@@ -2,20 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/models/classe.dart';
 import 'package:gest_absence_frontend/services/classe_service.dart';
 
-class ClassesScreen extends StatefulWidget {
+class ClassesScreen extends StatelessWidget {
   const ClassesScreen({super.key});
 
-  @override
-  State<ClassesScreen> createState() => _ClassesScreenState();
-}
-
-class _ClassesScreenState extends State<ClassesScreen> {
-  late Future<List<Classe>> futureClasses;
-
-  @override
-  void initState() {
-    super.initState();
-    futureClasses = ClasseService().getClasses();
+  Future<List<Classe>> _loadClasses() async {
+    return ClasseService().getClasses();
   }
 
   @override
@@ -23,7 +14,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Gestion Classes")),
       body: FutureBuilder<List<Classe>>(
-        future: futureClasses,
+        future: _loadClasses(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
