@@ -1,14 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:gest_absence_frontend/models/utilisateur.dart';
+import 'package:gest_absence_frontend/services/enseignant_service.dart';
 
-class EnseignantsScreen extends StatelessWidget {
-  // Ajout du paramètre 'key' pour corriger l'avertissement
-  const EnseignantsScreen({super.key}); 
+class EnseignantsScreen extends StatefulWidget {
+  const EnseignantsScreen({super.key});
+
+  @override
+  State<EnseignantsScreen> createState() => _EnseignantsScreenState();
+}
+
+class _EnseignantsScreenState extends State<EnseignantsScreen> {
+  late Future<List<Utilisateur>> futureEnseignants;
+
+  @override
+  void initState() {
+    super.initState();
+    futureEnseignants = EnseignantService().getEnseignants();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Gestion Enseignants")),
-      body: const Center(child: Text("Liste des enseignants")),
+      body: FutureBuilder<List<Utilisateur>>(
+        future: futureEnseignants,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("Aucun enseignant trouvé"));
+          }
+          final enseignants = snapshot.data!;
+          return ListView.builder(
+            itemCount: enseignants.length,
+            itemBuilder: (context, index) {
+              final enseignant = enseignants[index];
+              return ListTile(
+                title: Text("${enseignant.prenom} ${enseignant.nom}"),
+                subtitle: Text("ID: ${enseignant.id}"),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -7,4 +7,9 @@ class ApiConfig {
 
   static String etudiantAbsence = "$baseUrl/etudiant/absences.php";
   static String etudiantProfile = "$baseUrl/etudiant/profil.php";
+
+  static const String adminStats = "$baseUrl/admin/stats.php";
+  static const String etudiants = "$baseUrl/admin/etudiants.php";
+  static const String enseignants = "$baseUrl/admin/enseignants.php";
+  static const String seances = "$baseUrl/admin/seances.php";
 }
