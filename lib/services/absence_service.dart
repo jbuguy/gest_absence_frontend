@@ -6,7 +6,7 @@ class AbsenceService {
   final _api = ApiService();
 
   Future<List<Absence>> getAbsences(int userId) async {
-    final response = await _api.get(ApiConfig.etudiantsAbsence, id: userId);
+    final response = await _api.get(ApiConfig.etudiantAbsence, id: userId);
 
     if (response["success"] == 1) {
       if (response["data"].length == 0) {
