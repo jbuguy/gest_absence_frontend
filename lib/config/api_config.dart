@@ -5,6 +5,6 @@ class ApiConfig {
 
   static const String classes = "$baseUrl/classes";
 
-  static const String etudiants = "$baseUrl/etudiant/";
-  static String etudiantsAbsence = "$baseUrl/etudiant/absences.php";
+  static String etudiantAbsence = "$baseUrl/etudiant/absences.php";
+  static String etudiantProfile = "$baseUrl/etudiant/profil.php";
 }
