@@ -1,5 +1,6 @@
 class ApiConfig {
-  static const String baseUrl = "http://192.168.1.4:8000/gest_absence_api";
+  static const String baseUrl =
+      "https://gestabsence.infinityfreeapp.com/gest_absence_api";
 
   static const String login = "$baseUrl/auth/login.php";
 
