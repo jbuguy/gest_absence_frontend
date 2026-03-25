@@ -17,7 +17,7 @@ class Seance {
 
   factory Seance.fromJson(Map<String, dynamic> json) {
     return Seance(
-      id: json["id"],
+      id: json["id"] as int? ?? 0,
       matiere: json["matiere"],
       date: json["date"],
       heureDebut: json["heure_debut"],

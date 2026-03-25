@@ -8,7 +8,9 @@ class SeanceService {
   Future<List<Seance>> getSeances() async {
     final response = await _api.get(ApiConfig.seances);
     if (response["success"] == 1) {
-      final List<Map<String, dynamic>> data = response["data"];
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response["data"],
+      );
       return data.map(Seance.fromJson).toList();
     }
     throw Exception(response["message"] ?? "Error fetching sessions");

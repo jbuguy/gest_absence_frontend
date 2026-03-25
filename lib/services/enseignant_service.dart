@@ -8,7 +8,9 @@ class EnseignantService {
   Future<List<Utilisateur>> getEnseignants() async {
     final response = await _api.get(ApiConfig.enseignants);
     if (response["success"] == 1) {
-      final List<Map<String, dynamic>> data = response["data"];
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response["data"],
+      );
       return data.map(Utilisateur.fromJson).toList();
     }
     throw Exception(response["message"] ?? "Error fetching teachers");

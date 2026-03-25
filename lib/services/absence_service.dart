@@ -12,7 +12,9 @@ class AbsenceService {
       if (response["data"].length == 0) {
         return [];
       }
-      final List<Map<String, dynamic>> data = response["data"];
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response["data"],
+      );
       return data.map(Absence.fromJson).toList();
     }
 

@@ -27,7 +27,6 @@ class ApiService {
   Future<dynamic> _handleResponse(http.Response response) async {
     final data = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      print(data);
       return data;
     } else {
       throw Exception(data["message"] ?? "api error");
