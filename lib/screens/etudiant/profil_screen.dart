@@ -46,38 +46,45 @@ class _ProfilScreenState extends State<ProfilScreen> {
             return Center(child: Text("No data"));
           }
           final profile = asyncSnapshot.data!;
-          return Column(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                child: Text("${profile.prenom[0]}${profile.nom[0]}"),
-              ),
-              Text("${profile.prenom} ${profile.nom}"),
-              Chip(label: Text(profile.classNom)),
-              Card(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.description),
-                        SizedBox(width: 8),
-                        const Text("Informations personnelles"),
-                      ],
-                    ),
-                    _buildInfoItem(
-                      icon: Icons.alternate_email,
-                      label: "email professionnel",
-                      value: profile.email,
-                    ),
-                    _buildInfoItem(
-                      icon: Icons.class_,
-                      label: "classe",
-                      value: profile.niveau,
-                    ),
-                  ],
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 32.0,
+              horizontal: 24.0,
+            ),
+            child: Column(
+              crossAxisAlignment: .center,
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  child: Text("${profile.prenom[0]}${profile.nom[0]}"),
                 ),
-              ),
-            ],
+                Text("${profile.prenom} ${profile.nom}"),
+                Chip(label: Text(profile.classNom)),
+                Card(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.description),
+                          SizedBox(width: 8),
+                          const Text("Informations personnelles"),
+                        ],
+                      ),
+                      _buildInfoItem(
+                        icon: Icons.alternate_email,
+                        label: "email professionnel",
+                        value: profile.email,
+                      ),
+                      _buildInfoItem(
+                        icon: Icons.class_,
+                        label: "classe",
+                        value: profile.niveau,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
