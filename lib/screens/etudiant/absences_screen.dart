@@ -46,7 +46,7 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
             future: futureAbsences,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
                 return Center(child: Text("Error: ${snapshot.error}"));
