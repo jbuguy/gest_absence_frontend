@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 class ApiService {
   Future<dynamic> get(String url, {int? id}) async {
     final response = await http.get(
-      Uri.parse("$url${id != null ? "?id=$id" : ""}"),
+      Uri.parse(url).replace(queryParameters: id != null ? {"id": id} : null),
     );
     return _handleResponse(response);
   }

@@ -9,6 +9,7 @@ class AppTheme {
       seedColor: Colors.indigo,
       brightness: Brightness.light,
       primary: Colors.indigo,
+      secondary: Colors.green,
       onPrimary: Colors.white,
       surface: const Color(0xFFF9F9F9),
       surfaceContainerLow: Colors.white,
