@@ -23,8 +23,11 @@ class AbsenceService {
   }
 
   Future<void> sendAppel(RequestAbsence request) async {
-    final map = {"seance_id": request.seanceId, "absences": request.absences};
-    final response = await _api.post(ApiConfig.enseignantsSeance, map);
+    final absences = request.absences.map(
+      (key, value) => MapEntry(key.toString(), value),
+    );
+    final map = {"seance_id": request.seanceId, "absences": absences};
+    final response = await _api.post(ApiConfig.enseignantsAbsence, map);
     if (response["success"] == 1) {
       return;
     }

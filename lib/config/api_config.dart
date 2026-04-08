@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String baseUrl = "http://172.18.133.53:8000/gest_absence_api";
+  static const String baseUrl = "http://192.168.1.127:8000/gest_absence_api";
 
   static const String login = "$baseUrl/auth/login.php";
 
@@ -15,5 +15,5 @@ class ApiConfig {
   static const String enseignants = "$baseUrl/admin/enseignants.php";
   static const String enseignantsSeance = "$baseUrl/enseignant/seances.php";
   static const String enseignantsAbsence = "$baseUrl/enseignant/absences.php";
-  static const String enseignantsClasse = "$baseUrl/enseignants/classe.php";
+  static const String enseignantsClasse = "$baseUrl/enseignant/classe.php";
 }

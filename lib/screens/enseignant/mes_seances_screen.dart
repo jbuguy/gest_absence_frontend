@@ -18,31 +18,58 @@ class SeanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      color: Colors.white,
-      child: Column(
-        children: [
-          Text(seance.matiere),
-          Row(
-            children: [
-              Icon(Icons.lock_clock),
-              Text("${seance.heureDebut} - ${seance.heureFin} "),
-            ],
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AppelScreen(id: seance.id),
-                ),
-              );
-            },
-            child: const Row(
-              children: [Icon(Icons.assignment_add), Text("Faire l'appel")],
+      shape: RoundedRectangleBorder(),
+      margin: const EdgeInsets.only(bottom: 12.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+        child: Column(
+          crossAxisAlignment: .start,
+          children: [
+            Text(
+              seance.classeNom,
+              style: theme.textTheme.labelLarge?.copyWith(fontWeight: .w500),
             ),
-          ),
-        ],
+            const SizedBox(height: 8.0),
+            Text(
+              seance.matiere,
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: .w900),
+            ),
+            const SizedBox(height: 16.0),
+            Row(
+              children: [
+                Icon(Icons.schedule),
+                const SizedBox(width: 4.0),
+                Text("${seance.heureDebut} - ${seance.heureFin} "),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            FilledButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AppelScreen(seance: seance),
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: .center,
+                children: [
+                  const Icon(Icons.assignment_add),
+                  const SizedBox(width: 4.0),
+                  Text(
+                    "Faire l'appel",
+                    style: theme.primaryTextTheme.bodyMedium?.copyWith(
+                      fontWeight: .bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -53,6 +80,7 @@ class _MesSeancesScreenState extends State<MesSeancesScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return FutureBuilder(
       future: futureSeances,
       builder: (context, snapshot) {
@@ -70,18 +98,46 @@ class _MesSeancesScreenState extends State<MesSeancesScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    Text("aujourdhui $aujourdhui"),
-                    const SizedBox(height: 8),
-                    const Text("Planning du jour"),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: .start,
+
+                    children: [
+                      Text(
+                        "aujourdhui, $aujourdhui".toUpperCase(),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.secondary,
+                          fontWeight: .bold,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Mes Seances",
+                        style: theme.primaryTextTheme.headlineLarge?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: .w900,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Planning du jour",
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: .w200,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => SeanceCard(seance: seances[index]),
-                  childCount: seances.length,
+              SliverPadding(
+                padding: const EdgeInsets.all(16.0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => SeanceCard(seance: seances[index]),
+                    childCount: seances.length,
+                  ),
                 ),
               ),
             ],

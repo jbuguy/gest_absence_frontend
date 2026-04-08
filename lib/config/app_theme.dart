@@ -5,16 +5,16 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
 
-    colorScheme:  ColorScheme.fromSeed(
-      seedColor:  Colors.indigo,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.indigo,
       brightness: Brightness.light,
       primary: Colors.indigo,
       secondary: Colors.green,
       onPrimary: Colors.white,
-      surface: const Color(0xFFF9F9F9),
+      surface: const Color.fromARGB(255, 245, 245, 252),
+
       surfaceContainerLow: Colors.white,
     ),
-
     textTheme: GoogleFonts.manropeTextTheme(),
 
     cardTheme: CardThemeData(

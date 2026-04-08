@@ -26,13 +26,4 @@ class SeanceService {
     }
     throw Exception(response["message"] ?? "Error fetching sessions");
   }
-
-  Future<Seance> getSeance(int id) async {
-    final response = await _api.get(ApiConfig.seances, id: id);
-    if (response["success"] == 1) {
-      return Seance.fromJson(response["data"]);
-    }
-
-    throw Exception(response["message"] ?? "Error fetching sessions");
-  }
 }

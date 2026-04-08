@@ -4,104 +4,188 @@ import 'package:gest_absence_frontend/models/seance.dart';
 import 'package:gest_absence_frontend/models/utilisateur.dart';
 import 'package:gest_absence_frontend/services/absence_service.dart';
 import 'package:gest_absence_frontend/services/etudiant_service.dart';
-import 'package:gest_absence_frontend/services/seance_service.dart';
 
 class AppelScreen extends StatefulWidget {
-  final int id;
-  const AppelScreen({super.key, required this.id});
+  final Seance seance;
+  const AppelScreen({super.key, required this.seance});
 
   @override
   State<AppelScreen> createState() => _AppelScreenState();
 }
 
 class _AppelScreenState extends State<AppelScreen> {
-  late Future<Seance> futureSeance;
   late Future<List<Utilisateur>> futureEtudiants;
   Map<int, bool> absences = {};
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FutureBuilder(
-          future: futureSeance,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == .waiting) {
-              return const CircularProgressIndicator();
-            }
-            if (snapshot.hasError) {
-              return Center(child: const Text("error"));
-            }
-            final seance = snapshot.data!;
-            return Column(
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Feuille d'appel"),
+        leading: const BackButton(),
+      ),
+
+      body: FutureBuilder(
+        future: futureEtudiants,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == .waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("error ${snapshot.error}"));
+          }
+          final etudiants = snapshot.data ?? [];
+          if (absences.isEmpty) {
+            absences = {for (var e in etudiants) e.id: false};
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: .start,
               children: [
                 Card(
-                  child: Column(
-                    children: [const Text("Cours"), Text(seance.matiere)],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(8),
+                  ),
+                  color: colorScheme.primary,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 20.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: .start,
+                      children: [
+                        Text(
+                          "COURS ACTUEL",
+                          style: theme.primaryTextTheme.labelLarge?.copyWith(
+                            color: colorScheme.primaryContainer,
+                          ),
+                        ),
+                        Text(
+                          widget.seance.matiere,
+                          style: theme.primaryTextTheme.headlineLarge,
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: .symmetric(horizontal: 16, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: colorScheme.onPrimaryContainer,
+                                borderRadius: .circular(20),
+                              ),
+                              child: Text(
+                                widget.seance.classeNom,
+                                style: theme.primaryTextTheme.labelLarge
+                                    ?.copyWith(fontWeight: .bold),
+                              ),
+                            ),
+                            const SizedBox(width: 8.0),
+                            Container(
+                              padding: .symmetric(horizontal: 16, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: colorScheme.onPrimaryContainer,
+                                borderRadius: .circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.schedule),
+                                  Text(
+                                    "${widget.seance.heureDebut} - ${widget.seance.heureFin}",
+                                    style: theme.primaryTextTheme.labelLarge
+                                        ?.copyWith(fontWeight: .bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Text(
+                  "liste des etudiants",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: .bold,
+                  ),
+                ),
+
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: etudiants.length,
+                    itemBuilder: (context, index) {
+                      final etudiant = etudiants[index];
+
+                      return CheckboxListTile(
+                        value: absences[etudiant.id],
+                        onChanged: (v) {
+                          setState(() {
+                            absences[etudiant.id] = v ?? false;
+                          });
+                        },
+                        title: Text("${etudiant.nom} ${etudiant.prenom}"),
+                        subtitle: Text("${etudiant.id}"),
+                      );
+                    },
+                  ),
+                ),
+
+                FilledButton(
+                  onPressed: submit,
+                  child: Row(
+                    mainAxisAlignment: .center,
+                    children: [
+                      Icon(Icons.checklist),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        "Valider l'appel",
+                        style: theme.primaryTextTheme.bodyMedium?.copyWith(
+                          fontWeight: .w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            );
-          },
-        ),
-        const Text("liste des etudiants"),
-        FutureBuilder(
-          future: futureEtudiants,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == .waiting) {
-              return const CircularProgressIndicator();
-            }
-            if (snapshot.hasError) {
-              return Center(child: const Text("error"));
-            }
-            final etudiants = snapshot.data!;
-            absences = {for (var etudiant in etudiants) etudiant.id: false};
-            return ListView.builder(
-              itemCount: etudiants.length,
-              itemBuilder: (context, index) => CheckboxListTile(
-                value: absences[etudiants[index].id],
-                onChanged: (v) {
-                  absences[etudiants[index].id] = v ?? false;
-                },
-                title: Text(
-                  "${etudiants[index].nom} ${etudiants[index].prenom}",
-                ),
-                subtitle: Text("${etudiants[index].id}"),
-              ),
-            );
-          },
-        ),
-        FilledButton(
-          onPressed: submit,
-          child: const Row(
-            children: [Icon(Icons.checklist), Text("Valider l'appel")],
-          ),
-        ),
-      ],
+            ),
+          );
+        },
+      ),
     );
   }
 
   Future<void> submit() async {
-    final request = RequestAbsence(seanceId: widget.id, absences: absences);
+    final request = RequestAbsence(
+      seanceId: widget.seance.id,
+      absences: absences,
+    );
     final service = AbsenceService();
-    service.sendAppel(request);
+    try {
+      await service.sendAppel(request);
+      if (!context.mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    futureSeance = _loadSeance();
     futureEtudiants = _loadEtudiants();
   }
 
   Future<List<Utilisateur>> _loadEtudiants() async {
-    final id = widget.id;
+    final id = widget.seance.id;
     final service = EtudiantService();
     return service.getEtudiantsByClasse(id);
-  }
-
-  Future<Seance> _loadSeance() async {
-    final id = widget.id;
-    final service = SeanceService();
-    return service.getSeance(id);
   }
 }
