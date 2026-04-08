@@ -1,11 +1,12 @@
 import 'package:gest_absence_frontend/config/api_config.dart';
 import 'package:gest_absence_frontend/models/seance.dart';
 import 'package:gest_absence_frontend/services/api_service.dart';
+import 'package:http/http.dart';
 
 class SeanceService {
   final ApiService _api = ApiService();
 
-  Future<List<Seance>> getSeances() async {
+  Future<List<Seance>> getSeancesAdmin() async {
     final response = await _api.get(ApiConfig.seances);
     if (response["success"] == 1) {
       final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
@@ -13,6 +14,26 @@ class SeanceService {
       );
       return data.map(Seance.fromJson).toList();
     }
+    throw Exception(response["message"] ?? "Error fetching sessions");
+  }
+
+  Future<List<Seance>> getSeanceTeacher(int id) async {
+    final response = await _api.get(ApiConfig.enseignantsClasse, id: id);
+    if (response["success"] == 1) {
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response["data"],
+      );
+      return data.map(Seance.fromJson).toList();
+    }
+    throw Exception(response["message"] ?? "Error fetching sessions");
+  }
+
+  Future<Seance> getSeance(int id) async {
+    final response = await _api.get(ApiConfig.seances, id: id);
+    if (response["success"] == 1) {
+      return Seance.fromJson(response["data"]);
+    }
+
     throw Exception(response["message"] ?? "Error fetching sessions");
   }
 }

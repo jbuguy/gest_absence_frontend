@@ -15,4 +15,15 @@ class EtudiantService {
     }
     throw Exception(response["message"] ?? "Error fetching students");
   }
+
+  Future<List<Utilisateur>> getEtudiantsByClasse(int id) async {
+    final response = await _api.get(ApiConfig.enseignantsClasse, id: id);
+    if (response["success"] == 1) {
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response["data"],
+      );
+      return data.map(Utilisateur.fromJson).toList();
+    }
+    throw Exception(response["message"] ?? "Error fetching students");
+  }
 }

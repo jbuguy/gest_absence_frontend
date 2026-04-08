@@ -8,6 +8,7 @@ class AuthService {
       "email": email,
       "password": password,
     });
+    print(response);
     return response;
   }
 }
