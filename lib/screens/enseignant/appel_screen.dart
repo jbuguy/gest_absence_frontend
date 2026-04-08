@@ -1,10 +1,7 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
-
 import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/models/request_absence.dart';
 import 'package:gest_absence_frontend/models/seance.dart';
 import 'package:gest_absence_frontend/models/utilisateur.dart';
-import 'package:gest_absence_frontend/screens/etudiant/absences_screen.dart';
 import 'package:gest_absence_frontend/services/absence_service.dart';
 import 'package:gest_absence_frontend/services/etudiant_service.dart';
 import 'package:gest_absence_frontend/services/seance_service.dart';
