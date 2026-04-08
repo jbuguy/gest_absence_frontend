@@ -22,7 +22,6 @@ class SeanceCard extends StatelessWidget {
       color: Colors.white,
       child: Column(
         children: [
-          Text(seance.salle),
           Text(seance.matiere),
           Row(
             children: [
@@ -53,28 +52,40 @@ class _MesSeancesScreenState extends State<MesSeancesScreen> {
   late Future<List<Seance>> futureSeances;
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder(
       future: futureSeances,
       builder: (context, snapshot) {
         if (snapshot.connectionState == .waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
         if (snapshot.hasError) {
           return Center(child: Text("Error: ${snapshot.error}"));
         }
         final seances = snapshot.data ?? [];
         final aujourdhui = DateFormat("d MMMM", "fr_FR").format(DateTime.now());
-        return Column(
-          children: [
-            Text("aujourdhui $aujourdhui"),
-            const SizedBox(height: 8),
-            const Text("Planning du jour"),
-            ListView.builder(
-              itemBuilder: (context, index) =>
-                  SeanceCard(seance: seances[index]),
-              itemCount: seances.length,
-            ),
-          ],
+        return RefreshIndicator(
+          onRefresh: _refreshData,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    Text("aujourdhui $aujourdhui"),
+                    const SizedBox(height: 8),
+                    const Text("Planning du jour"),
+                  ],
+                ),
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => SeanceCard(seance: seances[index]),
+                  childCount: seances.length,
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -84,6 +95,12 @@ class _MesSeancesScreenState extends State<MesSeancesScreen> {
   void initState() {
     super.initState();
     futureSeances = _loadSeances();
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      futureSeances = _loadSeances();
+    });
   }
 
   Future<List<Seance>> _loadSeances() async {

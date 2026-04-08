@@ -13,6 +13,7 @@ class ApiConfig {
   static const String seances = "$baseUrl/admin/seances.php";
 
   static const String enseignants = "$baseUrl/admin/enseignants.php";
-  static const String enseignantsSeance = "$baseUrl/enseignants/seances.php";
+  static const String enseignantsSeance = "$baseUrl/enseignant/seances.php";
+  static const String enseignantsAbsence = "$baseUrl/enseignant/absences.php";
   static const String enseignantsClasse = "$baseUrl/enseignants/classe.php";
 }

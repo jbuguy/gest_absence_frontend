@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gest_absence_frontend/screens/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'etudiants_screen.dart';
 import 'enseignants_screen.dart';
 import 'classes_screen.dart';
@@ -14,6 +16,17 @@ class AdminHome extends StatefulWidget {
 
 class _AdminHomeState extends State<AdminHome> {
   int _selectedIndex = 0;
+  Future<void> logout() async {
+    final pref = await SharedPreferences.getInstance();
+    await pref.remove("user_id");
+    await pref.remove("role");
+
+    if (!context.mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +43,15 @@ class _AdminHomeState extends State<AdminHome> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const ListTile(
+          leading: Icon(Icons.school_outlined),
+          title: Text("GestAbsence"),
+        ),
+        actions: [
+          IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
+        ],
+      ),
       body: screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,

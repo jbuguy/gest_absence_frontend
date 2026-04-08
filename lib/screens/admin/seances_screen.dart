@@ -44,7 +44,6 @@ class _SeancesScreenState extends State<SeancesScreen> {
                 subtitle: Text(
                   "${seance.date} - ${seance.heureDebut} à ${seance.heureFin}",
                 ),
-                trailing: Text(seance.salle),
               );
             },
           );
@@ -53,4 +52,3 @@ class _SeancesScreenState extends State<SeancesScreen> {
     );
   }
 }
-
