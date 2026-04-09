@@ -8,4 +8,8 @@ class Classe {
   factory Classe.fromJson(Map<String, dynamic> json) {
     return Classe(id: json["id"], nom: json["nom"], niveau: json["niveau"]);
   }
+
+  Map<String, dynamic> toJson() {
+    return {"id": id, "nom": nom, "niveau": niveau};
+  }
 }

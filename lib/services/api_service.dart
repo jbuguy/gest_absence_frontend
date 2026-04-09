@@ -24,6 +24,20 @@ class ApiService {
     return _handleResponse(response);
   }
 
+  Future<dynamic> put(
+    String url,
+    Map<String, dynamic> body, {
+    int? userId,
+    String? role,
+  }) async {
+    final requestBody = {...body, "user_id": ?userId, "role": ?role};
+    final response = await http.put(
+      Uri.parse(url),
+      body: jsonEncode(requestBody),
+    );
+    return _handleResponse(response);
+  }
+
   Future<dynamic> _handleResponse(http.Response response) async {
     final data = jsonDecode(response.body);
     if (response.statusCode == 200) {
