@@ -15,7 +15,7 @@ class _SeancesScreenState extends State<SeancesScreen> {
   @override
   void initState() {
     super.initState();
-    futureSeances = SeanceService().getSeances();
+    futureSeances = SeanceService().getSeancesAdmin();
   }
 
   @override
@@ -41,8 +41,9 @@ class _SeancesScreenState extends State<SeancesScreen> {
               final seance = seances[index];
               return ListTile(
                 title: Text(seance.matiere),
-                subtitle: Text("${seance.date} - ${seance.heureDebut} à ${seance.heureFin}"),
-                trailing: Text(seance.salle),
+                subtitle: Text(
+                  "${seance.date} - ${seance.heureDebut} à ${seance.heureFin}",
+                ),
               );
             },
           );

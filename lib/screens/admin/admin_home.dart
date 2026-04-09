@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gest_absence_frontend/screens/home_app_bar.dart';
 import 'etudiants_screen.dart';
 import 'enseignants_screen.dart';
 import 'classes_screen.dart';
@@ -30,7 +31,7 @@ class _AdminHomeState extends State<AdminHome> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      appBar: HomeAppBar(),
       body: screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,

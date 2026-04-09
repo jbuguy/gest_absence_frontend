@@ -16,8 +16,8 @@ class Profile {
       nom: json["nom"],
       prenom: json["prenom"],
       email: json["email"],
-      classNom: json["classe_nom"],
-      niveau: json["niveau"],
+      classNom: json["classe_nom"] ?? "",
+      niveau: json["niveau"] ?? "",
     );
   }
 }

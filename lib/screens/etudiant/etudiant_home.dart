@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/screens/etudiant/absences_screen.dart';
 import 'package:gest_absence_frontend/screens/etudiant/profil_screen.dart';
+import 'package:gest_absence_frontend/screens/home_app_bar.dart';
 
 class EtudiantHomeScreen extends StatefulWidget {
   const EtudiantHomeScreen({super.key});
@@ -16,12 +17,7 @@ class _EtudiantHomeScreenState extends State<EtudiantHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: ListTile(
-          leading: Icon(Icons.school_outlined),
-          title: Text("GestAbsence"),
-        ),
-      ),
+      appBar: HomeAppBar(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (int index) {

@@ -13,7 +13,7 @@ class AbsencesScreen extends StatefulWidget {
 
 class _AbsencesScreenState extends State<AbsencesScreen> {
   late Future<List<Absence>> futureAbsences;
-  
+
   @override
   void initState() {
     super.initState();

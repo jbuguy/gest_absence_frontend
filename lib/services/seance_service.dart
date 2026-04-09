@@ -5,8 +5,19 @@ import 'package:gest_absence_frontend/services/api_service.dart';
 class SeanceService {
   final ApiService _api = ApiService();
 
-  Future<List<Seance>> getSeances() async {
+  Future<List<Seance>> getSeancesAdmin() async {
     final response = await _api.get(ApiConfig.seances);
+    if (response["success"] == 1) {
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response["data"],
+      );
+      return data.map(Seance.fromJson).toList();
+    }
+    throw Exception(response["message"] ?? "Error fetching sessions");
+  }
+
+  Future<List<Seance>> getSeanceTeacher(int id) async {
+    final response = await _api.get(ApiConfig.enseignantsSeance, id: id);
     if (response["success"] == 1) {
       final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
         response["data"],
