@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "gestAbsence",
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.darkTheme,
       home: const Root(),
     );
   }
