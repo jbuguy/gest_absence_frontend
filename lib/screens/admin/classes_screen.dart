@@ -22,7 +22,9 @@ class _ClassesScreenState extends State<ClassesScreen> {
   Future<List<Classe>> _loadClasses() async => ClasseService().getClasses();
 
   Future<void> _refreshData() async {
-    setState(() => futureClasses = _loadClasses());
+    setState(() {
+      futureClasses = _loadClasses();
+    });
   }
 
   @override
