@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gest_absence_frontend/models/utilisateur.dart';
+import 'package:gest_absence_frontend/models/enseignant.dart';
 import 'package:gest_absence_frontend/services/enseignant_service.dart';
 
 class EnseignantsScreen extends StatefulWidget {
@@ -10,7 +10,7 @@ class EnseignantsScreen extends StatefulWidget {
 }
 
 class _EnseignantsScreenState extends State<EnseignantsScreen> {
-  late Future<List<Utilisateur>> futureEnseignants;
+  late Future<List<Enseignant>> futureEnseignants;
 
   @override
   void initState() {
@@ -20,33 +20,30 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Gestion Enseignants")),
-      body: FutureBuilder<List<Utilisateur>>(
-        future: futureEnseignants,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Aucun enseignant trouvé"));
-          }
-          final enseignants = snapshot.data!;
-          return ListView.builder(
-            itemCount: enseignants.length,
-            itemBuilder: (context, index) {
-              final enseignant = enseignants[index];
-              return ListTile(
-                title: Text("${enseignant.prenom} ${enseignant.nom}"),
-                subtitle: Text("ID: ${enseignant.id}"),
-              );
-            },
-          );
-        },
-      ),
+    return FutureBuilder(
+      future: futureEnseignants,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text("Aucun enseignant trouvé"));
+        }
+        final enseignants = snapshot.data!;
+        return ListView.builder(
+          itemCount: enseignants.length,
+          itemBuilder: (context, index) {
+            final enseignant = enseignants[index];
+            return ListTile(
+              title: Text("${enseignant.prenom} ${enseignant.nom}"),
+              subtitle: Text("ID: ${enseignant.id}"),
+            );
+          },
+        );
+      },
     );
   }
 }

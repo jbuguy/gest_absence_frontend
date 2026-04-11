@@ -1,19 +1,20 @@
 class ApiConfig {
-  static const String baseUrl = "http://192.168.1.127:8000/gest_absence_api";
+  static const baseUrl = "http://192.168.1.24:8000/gest_absence_api";
 
-  static const String login = "$baseUrl/auth/login.php";
+  static const login = "$baseUrl/auth/login.php";
 
-  static const String classes = "$baseUrl/admin/classes.php";
+  static const classes = "$baseUrl/admin/classes.php";
 
-  static const String etudiantAbsence = "$baseUrl/etudiant/absences.php";
-  static const String etudiantProfile = "$baseUrl/etudiant/profil.php";
+  static const adminStats = "$baseUrl/admin/stats.php";
+  static const adminEtudiants = "$baseUrl/admin/etudiants.php";
+  static const adminSeance = "$baseUrl/admin/seances.php";
+  static const adminEnseignant = "$baseUrl/admin/enseignants.php";
+  static const adminMatiere = "$baseUrl/admin/matiere.php";
 
-  static const String adminStats = "$baseUrl/admin/stats.php";
-  static const String etudiants = "$baseUrl/admin/etudiants.php";
-  static const String seances = "$baseUrl/admin/seances.php";
+  static const enseignantsSeance = "$baseUrl/enseignant/seances.php";
+  static const enseignantsAbsence = "$baseUrl/enseignant/absences.php";
+  static const enseignantsClasse = "$baseUrl/enseignant/classe.php";
 
-  static const String enseignants = "$baseUrl/admin/enseignants.php";
-  static const String enseignantsSeance = "$baseUrl/enseignant/seances.php";
-  static const String enseignantsAbsence = "$baseUrl/enseignant/absences.php";
-  static const String enseignantsClasse = "$baseUrl/enseignant/classe.php";
+  static const etudiantAbsence = "$baseUrl/etudiant/absences.php";
+  static const etudiantProfile = "$baseUrl/etudiant/profil.php";
 }

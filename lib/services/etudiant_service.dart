@@ -6,7 +6,7 @@ class EtudiantService {
   final ApiService _api = ApiService();
 
   Future<List<Utilisateur>> getEtudiants() async {
-    final response = await _api.get(ApiConfig.etudiants);
+    final response = await _api.get(ApiConfig.adminEtudiants);
     if (response["success"] == 1) {
       final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
         response["data"],

@@ -7,12 +7,30 @@ class ClasseService {
 
   Future<List<Classe>> getClasses() async {
     final response = await _api.get(ApiConfig.classes);
+
     if (response["success"] == 1) {
-      print(response);
       final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
         response["data"],
       );
       return data.map(Classe.fromJson).toList();
+    }
+    throw Exception(response["message"] ?? "Error fetching classes");
+  }
+
+  Future<void> addClasse(Classe classe) async {
+    final response = await _api.post(ApiConfig.classes, classe.toJson());
+
+    if (response["success"] == 1) {
+      return;
+    }
+    throw Exception(response["message"] ?? "Error fetching classes");
+  }
+
+  Future<void> updateClasse(Classe classe) async {
+    final response = await _api.put(ApiConfig.classes, classe.toJson());
+
+    if (response["success"] == 1) {
+      return;
     }
     throw Exception(response["message"] ?? "Error fetching classes");
   }

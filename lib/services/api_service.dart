@@ -16,8 +16,23 @@ class ApiService {
     int? userId,
     String? role,
   }) async {
+    print(body);
     final requestBody = {...body, "user_id": ?userId, "role": ?role};
     final response = await http.post(
+      Uri.parse(url),
+      body: jsonEncode(requestBody),
+    );
+    return _handleResponse(response);
+  }
+
+  Future<dynamic> put(
+    String url,
+    Map<String, dynamic> body, {
+    int? userId,
+    String? role,
+  }) async {
+    final requestBody = {...body, "user_id": ?userId, "role": ?role};
+    final response = await http.put(
       Uri.parse(url),
       body: jsonEncode(requestBody),
     );

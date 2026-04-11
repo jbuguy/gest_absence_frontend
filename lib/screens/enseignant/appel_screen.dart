@@ -135,20 +135,14 @@ class _AppelScreenState extends State<AppelScreen> {
                   ),
                 ),
 
-                FilledButton(
+                FilledButton.icon(
                   onPressed: submit,
-                  child: Row(
-                    mainAxisAlignment: .center,
-                    children: [
-                      Icon(Icons.checklist),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        "Valider l'appel",
-                        style: theme.primaryTextTheme.bodyMedium?.copyWith(
-                          fontWeight: .w500,
-                        ),
-                      ),
-                    ],
+                  icon: Icon(Icons.checklist),
+                  label: Text(
+                    "Valider l'appel",
+                    style: theme.primaryTextTheme.bodyMedium?.copyWith(
+                      fontWeight: .w500,
+                    ),
                   ),
                 ),
               ],
@@ -167,6 +161,7 @@ class _AppelScreenState extends State<AppelScreen> {
     final service = AbsenceService();
     try {
       await service.sendAppel(request);
+
       if (!context.mounted) return;
       Navigator.pop(context);
     } catch (e) {

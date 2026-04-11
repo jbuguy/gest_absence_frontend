@@ -19,6 +19,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   final AuthService _authService = AuthService();
 
@@ -33,7 +39,6 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
       final user = res["user"];
-      print("User: $user");
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt("user_id", user["id"]);
@@ -160,16 +165,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                child: FilledButton.icon(
                   onPressed: _login,
-                  child: const Row(
-                    mainAxisAlignment: .center,
-                    children: [
-                      Text("connecter"),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward),
-                    ],
-                  ),
+                  label: const Text("connecter"),
+                  icon: const Icon(Icons.arrow_forward),
                 ),
               ),
             ],

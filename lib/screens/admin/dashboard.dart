@@ -10,14 +10,12 @@ class AdminDashboardContent extends StatelessWidget {
     final adminService = AdminService();
     try {
       final data = await adminService.getStats();
-      print(data);
       return {
         "total_etudiants": (data['total_etudiants']).toString(),
         "total_enseignants": (data['total_enseignants']).toString(),
         "absences_jour": (data['absences_jour']).toString(),
       };
     } catch (e) {
-      print("Erreur stats: $e");
       return {
         "total_etudiants": "0",
         "total_enseignants": "0",
@@ -28,6 +26,9 @@ class AdminDashboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return FutureBuilder<Map<String, dynamic>>(
       future: _fetchStats(),
       builder: (context, snapshot) {
@@ -35,22 +36,31 @@ class AdminDashboardContent extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
-          return const Center(
-            child: Text("Erreur lors du chargement des statistiques"),
+          return Center(
+            child: Text(
+              "Erreur lors du chargement des statistiques",
+              style: theme.textTheme.bodyMedium,
+            ),
           );
         }
         if (!snapshot.hasData) {
-          return const Center(child: Text("Aucune donnée disponible"));
+          return Center(
+            child: Text(
+              "Aucune donnée disponible",
+              style: theme.textTheme.bodyMedium,
+            ),
+          );
         }
 
         final stats = snapshot.data!;
 
         return SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -59,72 +69,67 @@ class AdminDashboardContent extends StatelessWidget {
                       children: [
                         Text(
                           "ADMINISTRATION",
-                          style: TextStyle(
-                            color: Colors.blue[900],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colorScheme.primary,
                           ),
                         ),
-                        const Text(
+                        Text(
                           "Bonjour, M. Dupont",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: theme.textTheme.headlineSmall,
                         ),
                       ],
                     ),
-                    CircleAvatar(
-                      backgroundColor: Colors.orange[100],
-                      child: const Icon(Icons.person, color: Colors.orange),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorScheme.primaryContainer,
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      child: Icon(
+                        Icons.person,
+                        color: colorScheme.onPrimaryContainer,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
-                ElevatedButton.icon(
+                // Action Button
+                FilledButton.icon(
                   onPressed: () => onNavigate?.call(4),
                   icon: const Icon(Icons.add),
                   label: const Text("Nouvelle Séance"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo[700],
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 32),
 
-                // UTILISATION DES DONNÉES RÉELLES ICI
+                // Statistics Cards
                 _buildStatCard(
+                  context,
                   "Total Étudiants",
                   stats['total_etudiants'],
                   Icons.group,
-                  Colors.blue,
-                  null,
+                  colorScheme.primary,
                 ),
                 _buildStatCard(
+                  context,
                   "Enseignants",
                   stats['total_enseignants'],
                   Icons.school,
-                  Colors.orange,
-                  null,
+                  colorScheme.secondary,
                 ),
                 _buildStatCard(
+                  context,
                   "Absences du jour",
                   stats['absences_jour'],
                   Icons.warning,
-                  Colors.red,
-                  null,
+                  colorScheme.tertiary,
                 ),
 
-                const SizedBox(height: 30),
-                const Text(
-                  "Accès Rapide",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 32),
+
+                // Quick Access Section
+                Text("Accès Rapide", style: theme.textTheme.titleMedium),
+                const SizedBox(height: 16),
 
                 _buildQuickAccessItem(
                   context,
@@ -156,20 +161,20 @@ class AdminDashboardContent extends StatelessWidget {
   }
 
   Widget _buildStatCard(
+    BuildContext context,
     String title,
     String value,
     IconData icon,
     Color color,
-    String? trend,
   ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Card(
       elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Colors.grey[200]!),
-      ),
-      margin: const EdgeInsets.only(bottom: 15),
+      color: colorScheme.surfaceContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Row(
@@ -177,24 +182,31 @@ class AdminDashboardContent extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color),
             ),
             const SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(color: Colors.grey[600])),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -209,15 +221,22 @@ class AdminDashboardContent extends StatelessWidget {
     IconData icon,
     VoidCallback onTap,
   ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.only(bottom: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      color: colorScheme.surfaceContainerHigh,
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: Icon(icon, color: Colors.indigo),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+        leading: Icon(icon, color: colorScheme.primary),
+        title: Text(title, style: theme.textTheme.labelLarge),
+        subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: colorScheme.onSurfaceVariant,
+        ),
         onTap: onTap,
       ),
     );

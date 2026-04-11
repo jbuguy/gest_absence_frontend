@@ -15,10 +15,12 @@ class AdminHome extends StatefulWidget {
 
 class _AdminHomeState extends State<AdminHome> {
   int _selectedIndex = 0;
+  late final List<Widget> screens;
 
   @override
-  Widget build(BuildContext context) {
-    final List<Widget> screens = [
+  void initState() {
+    super.initState();
+    screens = [
       AdminDashboardContent(
         onNavigate: (index) {
           setState(() => _selectedIndex = index);
@@ -29,7 +31,10 @@ class _AdminHomeState extends State<AdminHome> {
       const ClassesScreen(),
       const SeancesScreen(),
     ];
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: HomeAppBar(),
       body: screens[_selectedIndex],
