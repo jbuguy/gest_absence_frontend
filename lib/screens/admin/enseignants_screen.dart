@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gest_absence_frontend/models/utilisateur.dart';
+import 'package:gest_absence_frontend/models/enseignant.dart';
 import 'package:gest_absence_frontend/services/enseignant_service.dart';
 
 class EnseignantsScreen extends StatefulWidget {
@@ -10,7 +10,7 @@ class EnseignantsScreen extends StatefulWidget {
 }
 
 class _EnseignantsScreenState extends State<EnseignantsScreen> {
-  late Future<List<Utilisateur>> futureEnseignants;
+  late Future<List<Enseignant>> futureEnseignants;
 
   @override
   void initState() {
@@ -20,7 +20,7 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Utilisateur>>(
+    return FutureBuilder(
       future: futureEnseignants,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

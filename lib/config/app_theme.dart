@@ -7,10 +7,11 @@ class AppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: Colors.indigo,
       surface: const Color(0xFFF5F5FC),
+      secondary: Colors.green,
+      surfaceContainer: Colors.white,
     ),
     textTheme: GoogleFonts.manropeTextTheme(),
 
-    // Use 'extensions' or global component themes for shared logic
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.grey[100],
@@ -20,8 +21,10 @@ class AppTheme {
         borderSide: BorderSide.none,
       ),
     ),
-
-    // Buttons now inherit from the seed color automatically
+    cardTheme: CardThemeData(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -31,33 +34,29 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: const Color(0xFF0E0E0E), // Base Surface Level 0
+    scaffoldBackgroundColor: const Color(0xFF0E0E0E),
 
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFFBAC3FF), // Primary Indigo
+      seedColor: Colors.indigo,
       brightness: Brightness.dark,
       surface: const Color(0xFF0E0E0E),
-      onSurface: const Color(0xFFE7E5E5), // Prevents halation
-      onSurfaceVariant: const Color(0xFFACABAA), // Secondary contrast
-      surfaceContainerLow: const Color(0xFF131313), // Level 1
-      surfaceContainer: const Color(0xFF191A1A), // Level 2
-      surfaceContainerHighest: const Color(0xFF252626), // Level 3
-      outlineVariant: const Color(
-        0xFF484848,
-      ).withValues(alpha: 0.15), // Ghost Border
+      onSurface: const Color(0xFFE7E5E5),
+      onSurfaceVariant: const Color(0xFFACABAA),
+      surfaceContainerLow: const Color(0xFF131313),
+      surfaceContainer: const Color(0xFF191A1A),
+      surfaceContainerHighest: const Color(0xFF252626),
+      outlineVariant: const Color(0xFF484848).withValues(alpha: 0.15),
     ),
 
-    // Typography: Standardized Manrope with editorial line height
     textTheme: GoogleFonts.manropeTextTheme(ThemeData.dark().textTheme)
         .copyWith(
           displayLarge: const TextStyle(
             letterSpacing: -1.2,
             fontWeight: FontWeight.bold,
-          ), // Tight spacing
-          bodyMedium: const TextStyle(height: 1.6), // Academic readability
+          ),
+          bodyMedium: const TextStyle(height: 1.6),
         ),
 
-    // Unified Architecture: The Round Eight Rule
     cardTheme: const CardThemeData(
       elevation: 0,
       color: Color(0xFF131313),
@@ -68,16 +67,14 @@ class AppTheme {
 
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF131313), // Surface-container-low
+      fillColor: const Color(0xFF131313),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(
-          color: Color(0x66BAC3FF),
-        ), // 40% Indigo opacity
+        borderSide: const BorderSide(color: Color(0x66BAC3FF)),
       ),
     ),
   );

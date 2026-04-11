@@ -19,18 +19,16 @@ class _ClassesScreenState extends State<ClassesScreen> {
     futureClasses = _loadClasses();
   }
 
-  Future<List<Classe>> _loadClasses() async {
-    return ClasseService().getClasses();
-  }
+  Future<List<Classe>> _loadClasses() async => ClasseService().getClasses();
 
   Future<void> _refreshData() async {
-    setState(() {
-      futureClasses = _loadClasses();
-    });
+    setState(() => futureClasses = _loadClasses());
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Column(
       children: [
         Padding(
@@ -38,7 +36,13 @@ class _ClassesScreenState extends State<ClassesScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Classes", style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                "Gestion des Classes",
+                style: theme.primaryTextTheme.headlineLarge?.copyWith(
+                  color: colorScheme.primary,
+                  fontWeight: .w900,
+                ),
+              ),
               FilledButton.icon(
                 onPressed: () {
                   showDialog(
@@ -68,10 +72,13 @@ class _ClassesScreenState extends State<ClassesScreen> {
               }
               final classes = snapshot.data!;
               return ListView.builder(
+                padding: .all(4.0),
                 itemCount: classes.length,
                 itemBuilder: (context, index) {
                   final classe = classes[index];
+
                   return ListTile(
+                    tileColor: colorScheme.surfaceContainer,
                     title: Text(classe.nom),
                     subtitle: Text("Niveau: ${classe.niveau}"),
                     trailing: Row(

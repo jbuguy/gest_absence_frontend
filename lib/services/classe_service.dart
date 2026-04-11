@@ -18,8 +18,7 @@ class ClasseService {
   }
 
   Future<void> addClasse(Classe classe) async {
-    final body = classe.toJson();
-    final response = await _api.post(ApiConfig.classes, body);
+    final response = await _api.post(ApiConfig.classes, classe.toJson());
 
     if (response["success"] == 1) {
       return;
@@ -28,8 +27,7 @@ class ClasseService {
   }
 
   Future<void> updateClasse(Classe classe) async {
-    final body = classe.toJson();
-    final response = await _api.put(ApiConfig.classes, body);
+    final response = await _api.put(ApiConfig.classes, classe.toJson());
 
     if (response["success"] == 1) {
       return;
