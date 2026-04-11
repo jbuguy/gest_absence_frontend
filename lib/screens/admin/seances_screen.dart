@@ -30,7 +30,9 @@ class _SeancesScreenState extends State<SeancesScreen> {
       SeanceService().getSeancesAdmin();
 
   Future<void> _refreshData() async {
-    setState(() => futureSeances = _loadSeances());
+    setState(() {
+      futureSeances = _loadSeances();
+    });
   }
 
   @override
