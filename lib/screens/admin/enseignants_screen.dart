@@ -26,60 +26,111 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Gestion des Enseignants")),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog(
-          context: context,
-          builder: (context) => EnseignantDetailDialog(onSuccess: _refresh),
-        ),
-        child: const Icon(Icons.add),
-      ),
-      body: FutureBuilder<List<Enseignant>>(
-        future: futureEnseignants,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text("Erreur: ${snapshot.error}"));
-          }
-          final enseignants = snapshot.data ?? [];
-          return ListView.builder(
-            itemCount: enseignants.length,
-            itemBuilder: (context, index) {
-              final ens = enseignants[index];
-              return ListTile(
-                leading: const CircleAvatar(child: Icon(Icons.school)),
-                title: Text("${ens.prenom} ${ens.nom}"),
-                subtitle: Text(ens.specialite ?? "Sans spécialité"),
-                trailing: const Icon(Icons.edit, color: Colors.blue),
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (context) => EnseignantDetailDialog(
-                    enseignant: ens,
-                    onSuccess: _refresh,
-                  ),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Enseignants",
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+              FilledButton.icon(
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) =>
+                      EnseignantDetailDialog(onSuccess: _refresh),
+                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text("Ajouter"),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: FutureBuilder<List<Enseignant>>(
+            future: futureEnseignants,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text("Erreur: ${snapshot.error}"));
+              }
+              final enseignants = snapshot.data ?? [];
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: enseignants.length,
+                itemBuilder: (context, index) {
+                  final ens = enseignants[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundColor:
+                            colorScheme.primary.withValues(alpha: 0.12),
+                        child: Text(
+                          ens.prenom.isNotEmpty ? ens.prenom[0].toUpperCase() : "?",
+                          style: TextStyle(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        "${ens.prenom} ${ens.nom}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(ens.specialite ?? "Sans spécialité"),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          Icons.edit_outlined,
+                          color: colorScheme.primary,
+                        ),
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (context) => EnseignantDetailDialog(
+                            enseignant: ens,
+                            onSuccess: _refresh,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
+        ),
+      ],
     );
   }
 }
-
-// --- LE DIALOGUE DE FORMULAIRE (INCLUS DANS LE MÊME FICHIER) ---
 
 class EnseignantDetailDialog extends StatefulWidget {
   final Enseignant? enseignant;
   final VoidCallback onSuccess;
 
-  const EnseignantDetailDialog({super.key, this.enseignant, required this.onSuccess});
+  const EnseignantDetailDialog(
+      {super.key, this.enseignant, required this.onSuccess});
 
   @override
-  State<EnseignantDetailDialog> createState() => _EnseignantDetailDialogState();
+  State<EnseignantDetailDialog> createState() =>
+      _EnseignantDetailDialogState();
 }
 
 class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
@@ -103,22 +154,18 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
-
     final ens = Enseignant(
-      userId: widget.enseignant?.userId, // Utilise l'ID existant pour l'UPDATE
+      userId: widget.enseignant?.userId,
       nom: _nomCtrl.text,
       prenom: _prenomCtrl.text,
       email: _emailCtrl.text,
       specialite: _specCtrl.text,
-      matiereId: 1, // Requis par ton PHP pour le PUT
+      matiereId: 1,
     );
-
     try {
       if (widget.enseignant == null) {
-        // AJOUT : nécessite un mot de passe
         await EnseignantService().createEnseignant(ens, _passCtrl.text);
       } else {
-        // MODIFICATION
         await EnseignantService().updateEnseignant(ens);
       }
       widget.onSuccess();
@@ -133,7 +180,9 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.enseignant == null ? "Nouvel Enseignant" : "Modifier Enseignant"),
+      title: Text(widget.enseignant == null
+          ? "Nouvel enseignant"
+          : "Modifier enseignant"),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -142,30 +191,49 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
             children: [
               TextFormField(
                 controller: _nomCtrl,
-                decoration: const InputDecoration(labelText: "Nom"),
+                decoration: const InputDecoration(
+                  labelText: "Nom",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Champ requis" : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _prenomCtrl,
-                decoration: const InputDecoration(labelText: "Prénom"),
+                decoration: const InputDecoration(
+                  labelText: "Prénom",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Champ requis" : null,
               ),
               if (widget.enseignant == null) ...[
+                const SizedBox(height: 12),
                 TextFormField(
                   controller: _emailCtrl,
-                  decoration: const InputDecoration(labelText: "Email"),
+                  decoration: const InputDecoration(
+                    labelText: "Email",
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) => v!.isEmpty ? "Champ requis" : null,
                 ),
+                const SizedBox(height: 12),
                 TextFormField(
                   controller: _passCtrl,
-                  decoration: const InputDecoration(labelText: "Mot de passe"),
+                  decoration: const InputDecoration(
+                    labelText: "Mot de passe",
+                    border: OutlineInputBorder(),
+                  ),
                   obscureText: true,
                   validator: (v) => v!.isEmpty ? "Champ requis" : null,
                 ),
               ],
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _specCtrl,
-                decoration: const InputDecoration(labelText: "Spécialité"),
+                decoration: const InputDecoration(
+                  labelText: "Spécialité",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Champ requis" : null,
               ),
             ],
@@ -173,8 +241,14 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text("Annuler")),
-        ElevatedButton(onPressed: _submit, child: const Text("Enregistrer")),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Annuler"),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: const Text("Enregistrer"),
+        ),
       ],
     );
   }

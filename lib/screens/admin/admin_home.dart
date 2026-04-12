@@ -35,26 +35,77 @@ class _AdminHomeState extends State<AdminHome> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: HomeAppBar(),
       body: screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
+        indicatorColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         onDestinationSelected: (int index) {
           setState(() {
             _selectedIndex = index;
           });
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.dashboard),
+            icon: Icon(
+              Icons.dashboard_outlined,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            selectedIcon: Icon(
+              Icons.dashboard,
+              color: theme.colorScheme.primary,
+            ),
             label: 'Dashboard',
           ),
-          NavigationDestination(icon: Icon(Icons.school), label: 'Étudiants'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Enseignants'),
-          NavigationDestination(icon: Icon(Icons.class_), label: 'Classes'),
           NavigationDestination(
-            icon: Icon(Icons.calendar_today),
+            icon: Icon(
+              Icons.school_outlined,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            selectedIcon: Icon(
+              Icons.school,
+              color: theme.colorScheme.primary,
+            ),
+            label: 'Étudiants',
+          ),
+          NavigationDestination(
+            icon: Icon(
+              Icons.person_outline,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            selectedIcon: Icon(
+              Icons.person,
+              color: theme.colorScheme.primary,
+            ),
+            label: 'Enseignants',
+          ),
+          NavigationDestination(
+            icon: Icon(
+              Icons.class_outlined,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            selectedIcon: Icon(
+              Icons.class_,
+              color: theme.colorScheme.primary,
+            ),
+            label: 'Classes',
+          ),
+          NavigationDestination(
+            icon: Icon(
+              Icons.calendar_today_outlined,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            selectedIcon: Icon(
+              Icons.calendar_today,
+              color: theme.colorScheme.primary,
+            ),
             label: 'Séances',
           ),
         ],
