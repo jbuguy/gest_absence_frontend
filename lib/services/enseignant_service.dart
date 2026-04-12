@@ -15,4 +15,15 @@ class EnseignantService {
     }
     throw Exception(response["message"] ?? "Error fetching teachers");
   }
+  Future<void> createEnseignant(Enseignant ens, String password) async {
+    final body = ens.toJson();
+    body["password"] = password;
+    final response = await _api.post(ApiConfig.adminEnseignant, body);
+    if (response["success"] != 1) throw Exception(response["message"]);
+  }
+
+  Future<void> updateEnseignant(Enseignant ens) async {
+    final response = await _api.put(ApiConfig.adminEnseignant, ens.toJson());
+    if (response["success"] != 1) throw Exception(response["message"]);
+  }
 }

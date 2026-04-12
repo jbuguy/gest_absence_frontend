@@ -318,7 +318,7 @@ class _SeanceDetailDialogState extends State<SeanceDetailDialog> {
       id: widget.seance?.id ?? -1,
       classeId: selectedClasse!.id,
       classeNom: selectedClasse!.nom,
-      enseignantId: selectedEnseignant!.id,
+      enseignantId: selectedEnseignant?.id ?? 0,
       matiereId: selectedMatiere!.id,
       matiere: selectedMatiere!.nom,
       date: DateFormat("yyyy-MM-dd").format(selectedDate!),
