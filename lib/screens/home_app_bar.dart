@@ -3,7 +3,16 @@ import 'package:gest_absence_frontend/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const HomeAppBar({super.key});
+  // ✅ ajouter les deux champs
+  final ThemeMode themeMode;
+  final VoidCallback onToggleTheme;
+
+  const HomeAppBar({
+    super.key,
+    required this.themeMode,
+    required this.onToggleTheme,
+  });
+
   Future<void> logout(BuildContext context) async {
     final pref = await SharedPreferences.getInstance();
     await pref.remove("user_id");
@@ -12,7 +21,12 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (!context.mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder:(context) => LoginScreen()),
+      MaterialPageRoute(
+        builder: (context) => LoginScreen(
+          themeMode: themeMode,
+          onToggleTheme: onToggleTheme,
+        ),
+      ),
     );
   }
 
@@ -29,7 +43,20 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         title: const Text("GestAbsence"),
       ),
       actions: [
-        IconButton(onPressed: () => logout(context), icon: Icon(Icons.logout)),
+        // ✅ bouton toggle thème
+        IconButton(
+          icon: Icon(
+            themeMode == ThemeMode.dark
+                ? Icons.light_mode
+                : Icons.dark_mode,
+          ),
+          tooltip: themeMode == ThemeMode.dark ? 'Mode clair' : 'Mode sombre',
+          onPressed: onToggleTheme,
+        ),
+        IconButton(
+          onPressed: () => logout(context),
+          icon: const Icon(Icons.logout),
+        ),
       ],
     );
   }
