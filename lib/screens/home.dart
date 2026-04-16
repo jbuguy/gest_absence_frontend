@@ -6,7 +6,15 @@ import 'package:gest_absence_frontend/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  // ✅ ajouter les deux champs
+  final ThemeMode themeMode;
+  final VoidCallback onToggleTheme;
+
+  const Home({
+    super.key,
+    required this.themeMode,
+    required this.onToggleTheme,
+  });
 
   @override
   State<Home> createState() => _HomeState();
@@ -31,21 +39,35 @@ class _HomeState extends State<Home> {
     return FutureBuilder(
       future: futureRole,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == .waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
         final role = snapshot.data;
+
+        // ✅ plus de const — on transmet themeMode et onToggleTheme
         switch (role) {
           case "etudiant":
-            return const EtudiantHomeScreen();
+            return EtudiantHomeScreen(
+              themeMode: widget.themeMode,
+              onToggleTheme: widget.onToggleTheme,
+            );
           case "enseignant":
-            return const EnseignantHome();
+            return EnseignantHome(
+              themeMode: widget.themeMode,
+              onToggleTheme: widget.onToggleTheme,
+            );
           case "admin":
-            return const AdminHome();
+            return AdminHome(
+              themeMode: widget.themeMode,
+              onToggleTheme: widget.onToggleTheme,
+            );
           default:
-            return const LoginScreen();
+            return LoginScreen(
+              themeMode: widget.themeMode,
+              onToggleTheme: widget.onToggleTheme,
+            );
         }
       },
     );

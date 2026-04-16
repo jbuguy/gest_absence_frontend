@@ -12,21 +12,41 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+    ThemeMode _themeMode = ThemeMode.light; // ← le state du thème
+    void _toggleTheme() {                  // ← la fonction qui change le thème
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
+    });
+  }
+
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "gestAbsence",
       theme: AppTheme.lightTheme,
-      home: const Root(),
+      darkTheme: AppTheme.darkTheme,     // ← tu dois créer ça dans app_theme.dart
+      themeMode: _themeMode,
+      home: Root(themeMode: _themeMode,           // ← ENVOIE vers Root
+        onToggleTheme: _toggleTheme,),
     );
   }
 }
 
 class Root extends StatefulWidget {
-  const Root({super.key});
+  final ThemeMode themeMode;         // ← REÇOIT
+  final VoidCallback onToggleTheme; 
+  const Root({super.key,required this.themeMode,
+    required this.onToggleTheme,});
 
   @override
   State<Root> createState() => _RootState();
@@ -57,7 +77,14 @@ class _RootState extends State<Root> {
           );
         }
         final activeSession = snapshot.data ?? false;
-        return activeSession ? const Home() : const LoginScreen();
+        return activeSession ? Home(                              // ← RETRANSMET
+                themeMode: widget.themeMode,
+                onToggleTheme: widget.onToggleTheme,
+              )
+            : LoginScreen(                       // ← RETRANSMET
+                themeMode: widget.themeMode,
+                onToggleTheme: widget.onToggleTheme,
+              );
       },
     );
   }

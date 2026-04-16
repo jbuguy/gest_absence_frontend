@@ -15,7 +15,6 @@ class _ClassesScreenState extends State<ClassesScreen> {
   @override
   void initState() {
     super.initState();
-
     futureClasses = _loadClasses();
   }
 
@@ -31,18 +30,18 @@ class _ClassesScreenState extends State<ClassesScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Gestion des Classes",
-                style: theme.primaryTextTheme.headlineLarge?.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: .w900,
+                "Classes",
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               FilledButton.icon(
@@ -53,7 +52,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
                         ClasseDetailDialog(onSuccess: _refreshData),
                   );
                 },
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add, size: 18),
                 label: const Text("Ajouter"),
               ),
             ],
@@ -63,44 +62,73 @@ class _ClassesScreenState extends State<ClassesScreen> {
           child: FutureBuilder<List<Classe>>(
             future: futureClasses,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == .waiting) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
-                return Center(child: Text("Error: ${snapshot.error}"));
+                return Center(child: Text("Erreur: ${snapshot.error}"));
               }
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text("Aucune classe trouvée"));
               }
               final classes = snapshot.data!;
               return ListView.builder(
-                padding: .all(4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: classes.length,
                 itemBuilder: (context, index) {
                   final classe = classes[index];
-
-                  return ListTile(
-                    tileColor: colorScheme.surfaceContainer,
-                    title: Text(classe.nom),
-                    subtitle: Text("Niveau: ${classe.niveau}"),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (context) => ClasseDetailDialog(
-                              classe: classe,
-                              onSuccess: _refreshData,
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.class_,
+                          color: colorScheme.primary,
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(
+                        classe.nom,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text("Niveau: ${classe.niveau}"),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (context) => ClasseDetailDialog(
+                                classe: classe,
+                                onSuccess: _refreshData,
+                              ),
+                            ),
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              color: colorScheme.primary,
                             ),
                           ),
-                          icon: const Icon(Icons.edit),
-                        ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.delete),
-                        ),
-                      ],
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: colorScheme.error,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -130,35 +158,41 @@ class _ClasseDetailDialogState extends State<ClasseDetailDialog> {
   @override
   void initState() {
     super.initState();
-
     isEdit = widget.classe != null;
     nomController = TextEditingController(text: widget.classe?.nom ?? "");
-    niveauController = TextEditingController(text: widget.classe?.niveau ?? "");
+    niveauController =
+        TextEditingController(text: widget.classe?.niveau ?? "");
   }
 
   @override
   void dispose() {
     nomController.dispose();
     niveauController.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(isEdit ? "Modifier classe" : "Ajouter classe"),
+      title: Text(isEdit ? "Modifier la classe" : "Ajouter une classe"),
       content: SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nomController,
-              decoration: const InputDecoration(labelText: "Nom"),
+              decoration: const InputDecoration(
+                labelText: "Nom",
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: niveauController,
-              decoration: const InputDecoration(labelText: "Niveau"),
+              decoration: const InputDecoration(
+                labelText: "Niveau",
+                border: OutlineInputBorder(),
+              ),
             ),
           ],
         ),
@@ -170,7 +204,7 @@ class _ClasseDetailDialogState extends State<ClasseDetailDialog> {
         ),
         FilledButton(
           onPressed: _submit,
-          child: Text(isEdit ? "modifier" : "ajouter"),
+          child: Text(isEdit ? "Modifier" : "Ajouter"),
         ),
       ],
     );
@@ -179,7 +213,6 @@ class _ClasseDetailDialogState extends State<ClasseDetailDialog> {
   Future<void> _submit() async {
     try {
       final service = ClasseService();
-
       if (!isEdit) {
         await service.addClasse(
           Classe(
@@ -201,9 +234,8 @@ class _ClasseDetailDialogState extends State<ClasseDetailDialog> {
       Navigator.pop(context);
       widget.onSuccess();
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Erreur: $e")));
     }
   }
 }
