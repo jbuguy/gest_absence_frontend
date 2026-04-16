@@ -7,8 +7,8 @@ import 'seances_screen.dart';
 import 'dashboard.dart';
 
 class AdminHome extends StatefulWidget {
-  final ThemeMode themeMode;           // ✅
-  final VoidCallback onToggleTheme;    // ✅
+  final ThemeMode themeMode;
+  final VoidCallback onToggleTheme;
 
   const AdminHome({
     super.key,
@@ -44,14 +44,12 @@ class _AdminHomeState extends State<AdminHome> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      // ✅ transmettre à HomeAppBar
       appBar: HomeAppBar(
         themeMode: widget.themeMode,
         onToggleTheme: widget.onToggleTheme,
       ),
       body: screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
-        // ... ton code existant, rien à changer ici
         selectedIndex: _selectedIndex,
         indicatorColor: theme.colorScheme.primary.withValues(alpha: 0.12),
         backgroundColor: theme.colorScheme.surface,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/config/app_theme.dart';
-import 'package:gest_absence_frontend/screens/home.dart';
+import 'package:gest_absence_frontend/models/utilisateur.dart';
+import 'package:gest_absence_frontend/screens/admin/admin_home.dart';
+import 'package:gest_absence_frontend/screens/enseignant/enseignant_home.dart';
+import 'package:gest_absence_frontend/screens/etudiant/etudiant_home.dart';
 import 'package:gest_absence_frontend/screens/login_screen.dart';
+import 'package:gest_absence_frontend/services/auth_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,72 +23,60 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-    ThemeMode _themeMode = ThemeMode.light; // ← le state du thème
-    void _toggleTheme() {                  // ← la fonction qui change le thème
-    setState(() {
-      _themeMode = _themeMode == ThemeMode.light
-          ? ThemeMode.dark
-          : ThemeMode.light;
-    });
-  }
-
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "gestAbsence",
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,     // ← tu dois créer ça dans app_theme.dart
-      themeMode: _themeMode,
-      home: Root(themeMode: _themeMode,           // ← ENVOIE vers Root
-        onToggleTheme: _toggleTheme,),
-    );
-  }
-}
-
-class Root extends StatefulWidget {
-  final ThemeMode themeMode;         // ← REÇOIT
-  final VoidCallback onToggleTheme; 
-  const Root({super.key,required this.themeMode,
-    required this.onToggleTheme,});
-
-  @override
-  State<Root> createState() => _RootState();
-}
-
-class _RootState extends State<Root> {
-  late Future<bool> futureAuthSession;
+  ThemeMode _theme = ThemeMode.light;
+  late Future<(bool, Utilisateur?)> futureAuthSession;
 
   @override
   void initState() {
     super.initState();
-    futureAuthSession = _getAuthSession();
+    final service = AuthService();
+    futureAuthSession = service.getSession();
   }
 
-  Future<bool> _getAuthSession() async {
-    final pref = await SharedPreferences.getInstance();
-    return pref.getBool("session") ?? false;
-  }
+  void _toggleTheme() => setState(() {
+    _theme = _theme == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+  });
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: futureAuthSession,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == .waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        final activeSession = snapshot.data ?? false;
-        return activeSession ? Home(                              // ← RETRANSMET
-                themeMode: widget.themeMode,
-                onToggleTheme: widget.onToggleTheme,
-              )
-            : LoginScreen(                       // ← RETRANSMET
-                themeMode: widget.themeMode,
-                onToggleTheme: widget.onToggleTheme,
-              );
-      },
+    return MaterialApp(
+      title: "gestAbsence",
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: _theme,
+      home: FutureBuilder(
+        future: futureAuthSession,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == .waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          if (!snapshot.hasData) {
+            return LoginScreen(themeMode: _theme, onToggleTheme: _toggleTheme);
+          }
+          final (activeSession, user) = snapshot.data!;
+          return activeSession
+              ? _getHomeByRole(user!.role)
+              : LoginScreen(themeMode: _theme, onToggleTheme: _toggleTheme);
+        },
+      ),
     );
+  }
+
+  Widget _getHomeByRole(String role) {
+    switch (role) {
+      case "etudiant":
+        return EtudiantHomeScreen(
+          themeMode: _theme,
+          onToggleTheme: _toggleTheme,
+        );
+      case "enseignant":
+        return EnseignantHome(themeMode: _theme, onToggleTheme: _toggleTheme);
+      case "admin":
+        return AdminHome(themeMode: _theme, onToggleTheme: _toggleTheme);
+      default:
+        return LoginScreen(themeMode: _theme, onToggleTheme: _toggleTheme);
+    }
   }
 }

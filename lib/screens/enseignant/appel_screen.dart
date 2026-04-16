@@ -48,7 +48,7 @@ class _AppelScreenState extends State<AppelScreen> {
               children: [
                 Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(8),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   color: colorScheme.primary,
                   child: Padding(
@@ -162,10 +162,10 @@ class _AppelScreenState extends State<AppelScreen> {
     try {
       await service.sendAppel(request);
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
-      if (!context.mounted) return;
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Erreur: $e")));

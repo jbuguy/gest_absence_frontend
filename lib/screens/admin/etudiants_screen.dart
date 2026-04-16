@@ -81,12 +81,11 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor:
-                            colorScheme.secondary.withValues(alpha: 0.12),
+                        backgroundColor: colorScheme.secondary.withValues(
+                          alpha: 0.12,
+                        ),
                         child: Text(
-                          u.prenom.isNotEmpty
-                              ? u.prenom[0].toUpperCase()
-                              : "?",
+                          u.prenom.isNotEmpty ? u.prenom[0].toUpperCase() : "?",
                           style: TextStyle(
                             color: colorScheme.secondary,
                             fontWeight: FontWeight.bold,
@@ -129,8 +128,11 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
 class EtudiantDetailDialog extends StatefulWidget {
   final Utilisateur? etudiant;
   final VoidCallback onSuccess;
-  const EtudiantDetailDialog(
-      {super.key, this.etudiant, required this.onSuccess});
+  const EtudiantDetailDialog({
+    super.key,
+    this.etudiant,
+    required this.onSuccess,
+  });
 
   @override
   State<EtudiantDetailDialog> createState() => _EtudiantDetailDialogState();
@@ -173,7 +175,9 @@ class _EtudiantDetailDialogState extends State<EtudiantDetailDialog> {
   Future<void> _submit() async {
     if (selectedClasse == null ||
         _nomCtrl.text.isEmpty ||
-        _prenomCtrl.text.isEmpty) return;
+        _prenomCtrl.text.isEmpty) {
+      return;
+    }
     final etu = Etudiant(
       id: widget.etudiant?.id,
       nom: _nomCtrl.text,
@@ -191,8 +195,12 @@ class _EtudiantDetailDialogState extends State<EtudiantDetailDialog> {
       widget.onSuccess();
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Erreur: $e")));
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
     }
   }
 
@@ -202,7 +210,9 @@ class _EtudiantDetailDialogState extends State<EtudiantDetailDialog> {
       title: Text(isEdit ? "Modifier étudiant" : "Ajouter un étudiant"),
       content: isLoading
           ? const SizedBox(
-              height: 100, child: Center(child: CircularProgressIndicator()))
+              height: 100,
+              child: Center(child: CircularProgressIndicator()),
+            )
           : SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -243,16 +253,15 @@ class _EtudiantDetailDialogState extends State<EtudiantDetailDialog> {
                   ],
                   const SizedBox(height: 16),
                   DropdownButtonFormField<Classe>(
-                    value: selectedClasse,
+                    initialValue: selectedClasse,
                     decoration: const InputDecoration(
                       labelText: "Classe",
                       border: OutlineInputBorder(),
                     ),
                     items: classes
-                        .map((c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(c.nom),
-                            ))
+                        .map(
+                          (c) => DropdownMenuItem(value: c, child: Text(c.nom)),
+                        )
                         .toList(),
                     onChanged: (v) => setState(() => selectedClasse = v),
                   ),

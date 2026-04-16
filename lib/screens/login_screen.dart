@@ -4,7 +4,6 @@ import 'package:gest_absence_frontend/screens/etudiant/etudiant_home.dart';
 import 'package:gest_absence_frontend/screens/admin/admin_home.dart';
 import 'package:gest_absence_frontend/screens/enseignant/enseignant_home.dart';
 import 'package:gest_absence_frontend/services/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   final ThemeMode themeMode;
@@ -27,9 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
 
-  // Couleur principale teal
-  static const _teal = Color(0xFF0F9B8E);
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -42,47 +38,45 @@ class _LoginScreenState extends State<LoginScreen> {
       final res = await _authService.login(
         _emailController.text,
         _passwordController.text,
+        _stayConnected,
       );
-      if (res["success"] == 0) {
-        _showError(res["message"]);
+      if (!res.success) {
+        _showError(res.message);
         return;
       }
-      final user = res["user"];
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt("user_id", user["id"]);
-      await prefs.setString("role", user["role"]);
+      final user = res.user!;
       if (!mounted) return;
-
-      Widget screen;
-      switch (user["role"]) {
-        case "etudiant":
-          screen = EtudiantHomeScreen(
-            themeMode: widget.themeMode,
-            onToggleTheme: widget.onToggleTheme,
-          );
-          break;
-        case "admin":
-          screen = AdminHome(
-            themeMode: widget.themeMode,
-            onToggleTheme: widget.onToggleTheme,
-          );
-          break;
-        case "enseignant":
-          screen = EnseignantHome(
-            themeMode: widget.themeMode,
-            onToggleTheme: widget.onToggleTheme,
-          );
-          break;
-        default:
-          _showError("Rôle inconnu");
-          return;
-      }
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => screen),
+        MaterialPageRoute(builder: (_) => _getHomeByRole(user.role)),
       );
     } catch (e) {
       _showError(e.toString());
+    }
+  }
+
+  Widget _getHomeByRole(String role) {
+    switch (role) {
+      case "etudiant":
+        return EtudiantHomeScreen(
+          themeMode: widget.themeMode,
+          onToggleTheme: widget.onToggleTheme,
+        );
+      case "enseignant":
+        return EnseignantHome(
+          themeMode: widget.themeMode,
+          onToggleTheme: widget.onToggleTheme,
+        );
+      case "admin":
+        return AdminHome(
+          themeMode: widget.themeMode,
+          onToggleTheme: widget.onToggleTheme,
+        );
+      default:
+        return LoginScreen(
+          themeMode: widget.themeMode,
+          onToggleTheme: widget.onToggleTheme,
+        );
     }
   }
 
@@ -90,34 +84,9 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: const Color(0xFF0D3D38),
+        backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  // Le logo SVG : registre avec checkmark
-  Widget _buildLogo() {
-    return Container(
-      width: 88,
-      height: 88,
-      decoration: BoxDecoration(
-        color: _teal,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: _teal.withOpacity(0.3),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Center(
-        child: CustomPaint(
-          size: const Size(50, 50),
-          painter: _LogoPainter(),
-        ),
       ),
     );
   }
@@ -147,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: IconButton(
                     icon: Icon(
                       isDark ? Icons.light_mode : Icons.dark_mode,
-                      color: _teal,
+                      color: Theme.of(context).primaryColor,
                       size: 20,
                     ),
                     onPressed: widget.onToggleTheme,
@@ -157,11 +126,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 24),
 
-              // Logo + nom + tagline centrés
               Center(
                 child: Column(
                   children: [
-                    _buildLogo(),
+                    Icon(
+                      Icons.assignment_turned_in,
+                      color: Theme.of(context).primaryColor,
+                      size: 60,
+                    ),
                     const SizedBox(height: 14),
                     Text(
                       "GestAbsence",
@@ -178,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: _teal.withOpacity(0.7),
+                        color: Theme.of(context).primaryColor.withOpacity(0.7),
                         letterSpacing: 0.2,
                       ),
                     ),
@@ -194,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: _teal,
+                  color: Theme.of(context).primaryColor,
                   letterSpacing: 0.6,
                 ),
               ),
@@ -202,9 +174,13 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.email_outlined, color: _teal, size: 20),
-                  hintText: "prenom.nom@fsb.ucar.tn",
+                decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.email_outlined,
+                    color: Theme.of(context).primaryColor,
+                    size: 20,
+                  ),
+                  hintText: "nom@school.tn",
                 ),
               ),
 
@@ -216,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: _teal,
+                  color: Theme.of(context).primaryColor,
                   letterSpacing: 0.6,
                 ),
               ),
@@ -225,11 +201,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock_outlined, color: _teal, size: 20),
+                  prefixIcon: Icon(
+                    Icons.lock_outlined,
+                    color: Theme.of(context).primaryColor,
+                    size: 20,
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      color: _teal.withOpacity(0.5),
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Theme.of(context).primaryColor.withOpacity(0.5),
                       size: 20,
                     ),
                     onPressed: () =>
@@ -243,7 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Checkbox(
                     value: _stayConnected,
-                    activeColor: _teal,
+                    activeColor: Theme.of(context).primaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -254,10 +236,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     "Rester connecté",
                     style: TextStyle(
                       fontSize: 13,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                 ],
@@ -271,7 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: FilledButton.icon(
                   onPressed: _login,
                   style: FilledButton.styleFrom(
-                    backgroundColor: _teal,
+                    backgroundColor: Theme.of(context).primaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -290,67 +271,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}
-
-// Painter pour le logo registre + checkmark
-class _LogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2
-      ..strokeCap = StrokeCap.round;
-
-    final fillPaint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
-      ..style = PaintingStyle.fill;
-
-    // Registre (rectangle arrondi)
-    final rect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(size.width * 0.1, size.height * 0.05,
-          size.width * 0.58, size.height * 0.82),
-      const Radius.circular(5),
-    );
-    canvas.drawRRect(rect, fillPaint);
-    canvas.drawRRect(rect, paint);
-
-    // Lignes du registre
-    final lineX1 = size.width * 0.22;
-    final lineX2 = size.width * 0.58;
-    canvas.drawLine(Offset(lineX1, size.height * 0.32),
-        Offset(lineX2, size.height * 0.32), paint);
-    canvas.drawLine(Offset(lineX1, size.height * 0.48),
-        Offset(lineX2, size.height * 0.48), paint);
-    canvas.drawLine(Offset(lineX1, size.height * 0.64),
-        Offset(size.width * 0.46, size.height * 0.64), paint);
-
-    // Cercle badge checkmark
-    final circlePaint = Paint()
-      ..color = const Color(0xFF0F9B8E)
-      ..style = PaintingStyle.fill;
-    final circleBorderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    final center = Offset(size.width * 0.76, size.height * 0.72);
-    canvas.drawCircle(center, size.width * 0.2, circlePaint);
-    canvas.drawCircle(center, size.width * 0.2, circleBorderPaint);
-
-    // Checkmark
-    final checkPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final path = Path()
-      ..moveTo(center.dx - size.width * 0.1, center.dy)
-      ..lineTo(center.dx - size.width * 0.02, center.dy + size.height * 0.08)
-      ..lineTo(center.dx + size.width * 0.12, center.dy - size.height * 0.08);
-    canvas.drawPath(path, checkPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

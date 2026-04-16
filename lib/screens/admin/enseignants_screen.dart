@@ -34,13 +34,11 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: .spaceBetween,
             children: [
               Text(
                 "Enseignants",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: .bold),
               ),
               FilledButton.icon(
                 onPressed: () => showDialog(
@@ -78,19 +76,24 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor:
-                            colorScheme.primary.withValues(alpha: 0.12),
+                        backgroundColor: colorScheme.primary.withValues(
+                          alpha: 0.12,
+                        ),
                         child: Text(
-                          ens.prenom.isNotEmpty ? ens.prenom[0].toUpperCase() : "?",
+                          ens.prenom.isNotEmpty
+                              ? ens.prenom[0].toUpperCase()
+                              : "?",
                           style: TextStyle(
                             color: colorScheme.primary,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: .bold,
                           ),
                         ),
                       ),
                       title: Text(
                         "${ens.prenom} ${ens.nom}",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: .bold,
+                        ),
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4),
@@ -125,12 +128,14 @@ class EnseignantDetailDialog extends StatefulWidget {
   final Enseignant? enseignant;
   final VoidCallback onSuccess;
 
-  const EnseignantDetailDialog(
-      {super.key, this.enseignant, required this.onSuccess});
+  const EnseignantDetailDialog({
+    super.key,
+    this.enseignant,
+    required this.onSuccess,
+  });
 
   @override
-  State<EnseignantDetailDialog> createState() =>
-      _EnseignantDetailDialogState();
+  State<EnseignantDetailDialog> createState() => _EnseignantDetailDialogState();
 }
 
 class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
@@ -169,20 +174,21 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
         await EnseignantService().updateEnseignant(ens);
       }
       widget.onSuccess();
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur serveur: $e")),
-      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erreur serveur: $e")));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.enseignant == null
-          ? "Nouvel enseignant"
-          : "Modifier enseignant"),
+      title: Text(
+        widget.enseignant == null ? "Nouvel enseignant" : "Modifier enseignant",
+      ),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -245,10 +251,7 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text("Annuler"),
         ),
-        FilledButton(
-          onPressed: _submit,
-          child: const Text("Enregistrer"),
-        ),
+        FilledButton(onPressed: _submit, child: const Text("Enregistrer")),
       ],
     );
   }
