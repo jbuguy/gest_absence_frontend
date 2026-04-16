@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/models/absence.dart';
 import 'package:gest_absence_frontend/services/absence_service.dart';
+import 'package:gest_absence_frontend/services/auth_service.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AbsencesScreen extends StatefulWidget {
   const AbsencesScreen({super.key});
@@ -21,8 +21,8 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
   }
 
   Future<List<Absence>> _loadAbsences() async {
-    final prefrences = await SharedPreferences.getInstance();
-    final userId = prefrences.getInt("user_id");
+    final user = await AuthService().getCurrentUser();
+    final userId = user?.id;
     if (userId == null) {
       throw Exception("User not logged in ");
     }

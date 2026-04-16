@@ -54,4 +54,14 @@ class AuthService {
     final id = prefs.getInt("user_id") ?? -1;
     return (true, Utilisateur(id: id, nom: nom, prenom: prenom, role: role));
   }
+
+  Future<Utilisateur?> getCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final role = prefs.getString("role") ?? "";
+    final nom = prefs.getString("nom") ?? "";
+    final prenom = prefs.getString("prenom") ?? "";
+    final id = prefs.getInt("user_id") ?? -1;
+    return Utilisateur(id: id, nom: nom, prenom: prenom, role: role);
+  }
 }

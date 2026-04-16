@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/models/seance.dart';
 import 'package:gest_absence_frontend/screens/enseignant/appel_screen.dart';
+import 'package:gest_absence_frontend/services/auth_service.dart';
 import 'package:gest_absence_frontend/services/seance_service.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MesSeancesScreen extends StatefulWidget {
   const MesSeancesScreen({super.key});
@@ -160,8 +160,8 @@ class _MesSeancesScreenState extends State<MesSeancesScreen> {
   }
 
   Future<List<Seance>> _loadSeances() async {
-    final pref = await SharedPreferences.getInstance();
-    final userId = pref.getInt("user_id");
+    final user = await AuthService().getCurrentUser();
+    final userId = user?.id;
     if (userId == null) {
       throw Exception("User not logged in ");
     }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/models/profile.dart';
+import 'package:gest_absence_frontend/services/auth_service.dart';
 import 'package:gest_absence_frontend/services/profile_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
@@ -19,8 +19,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   Future<Profile> _loadProfile() async {
-    final preferences = await SharedPreferences.getInstance();
-    final userId = preferences.getInt("user_id");
+    final user = await AuthService().getCurrentUser();
+    final userId = user?.id;
     if (userId == null) {
       throw Exception("User not logged in");
     }
