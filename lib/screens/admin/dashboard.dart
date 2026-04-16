@@ -33,162 +33,135 @@ class AdminDashboardContent extends StatelessWidget {
     return FutureBuilder<Map<String, dynamic>>(
       future: _fetchStats(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == .waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        final stats = snapshot.data ??
-            {
-              "total_etudiants": "0",
-              "total_enseignants": "0",
-              "absences_jour": "0",
-            };
+        final stats = snapshot.data!;
 
         return RefreshIndicator(
           onRefresh: () async {},
-          child: CustomScrollView(
+          child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-              // Top card — same pattern as AbsencesScreen TopCard
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: colorScheme.primary,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        color: colorScheme.primary,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "ADMINISTRATION",
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: colorScheme.onPrimary.withValues(
+                                alpha: 0.8,
+                              ),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "Bonjour, M. Dupont",
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              color: colorScheme.onPrimary,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          FilledButton.icon(
+                            onPressed: () => onNavigate?.call(4),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: colorScheme.onPrimary.withValues(
+                                alpha: 0.2,
+                              ),
+                              foregroundColor: colorScheme.onPrimary,
+                            ),
+                            icon: const Icon(Icons.add, size: 18),
+                            label: const Text("Nouvelle séance"),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 28, 8, 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "ADMINISTRATION",
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: colorScheme.onPrimary.withValues(alpha: 0.8),
+                          "Statistiques",
+                          style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 12),
                         Text(
-                          "Bonjour, M. Dupont",
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            color: colorScheme.onPrimary,
-                            fontWeight: FontWeight.w900,
+                          DateFormat("d MMMM", "fr_FR").format(DateTime.now()),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.outline,
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        FilledButton.icon(
-                          onPressed: () => onNavigate?.call(4),
-                          style: FilledButton.styleFrom(
-                            backgroundColor:
-                                colorScheme.onPrimary.withValues(alpha: 0.2),
-                            foregroundColor: colorScheme.onPrimary,
-                          ),
-                          icon: const Icon(Icons.add, size: 18),
-                          label: const Text("Nouvelle séance"),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ),
-
-              // Section title
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Statistiques",
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        DateFormat("d MMMM", "fr_FR").format(DateTime.now()),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.outline,
-                        ),
-                      ),
-                    ],
+                  _StatCard(
+                    title: "Total étudiants",
+                    value: stats['total_etudiants'],
+                    icon: Icons.group_outlined,
+                    color: colorScheme.primary,
                   ),
-                ),
-              ),
-
-              // Stat cards — same Card style as AbsenceTile
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _StatCard(
-                      title: "Total étudiants",
-                      value: stats['total_etudiants'],
-                      icon: Icons.group_outlined,
-                      color: colorScheme.primary,
-                    ),
-                    _StatCard(
-                      title: "Enseignants",
-                      value: stats['total_enseignants'],
-                      icon: Icons.school_outlined,
-                      color: colorScheme.secondary,
-                    ),
-                    _StatCard(
-                      title: "Absences du jour",
-                      value: stats['absences_jour'],
-                      icon: Icons.warning_amber_outlined,
-                      color: colorScheme.error,
-                    ),
-                  ]),
-                ),
-              ),
-
-              // Quick access section title
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
-                  child: Text(
-                    "Accès rapide",
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  _StatCard(
+                    title: "Enseignants",
+                    value: stats['total_enseignants'],
+                    icon: Icons.school_outlined,
+                    color: colorScheme.secondary,
+                  ),
+                  _StatCard(
+                    title: "Absences du jour",
+                    value: stats['absences_jour'],
+                    icon: Icons.warning_amber_outlined,
+                    color: colorScheme.error,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 28, 8, 16),
+                    child: Text(
+                      "Accès rapide",
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
+                  _QuickAccessCard(
+                    title: "Gestion étudiants",
+                    subtitle: "Inscriptions, profils, listes",
+                    icon: Icons.person_add_outlined,
+                    onTap: () => onNavigate?.call(1),
+                  ),
+                  _QuickAccessCard(
+                    title: "Gestion enseignants",
+                    subtitle: "Planning, affectations",
+                    icon: Icons.assignment_ind_outlined,
+                    onTap: () => onNavigate?.call(2),
+                  ),
+                  _QuickAccessCard(
+                    title: "Planning des séances",
+                    subtitle: "Calendrier académique",
+                    icon: Icons.calendar_month_outlined,
+                    onTap: () => onNavigate?.call(4),
+                  ),
+                  const SizedBox(height: 80),
+                ],
               ),
-
-              // Quick access cards
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _QuickAccessCard(
-                      title: "Gestion étudiants",
-                      subtitle: "Inscriptions, profils, listes",
-                      icon: Icons.person_add_outlined,
-                      onTap: () => onNavigate?.call(1),
-                    ),
-                    _QuickAccessCard(
-                      title: "Gestion enseignants",
-                      subtitle: "Planning, affectations",
-                      icon: Icons.assignment_ind_outlined,
-                      onTap: () => onNavigate?.call(2),
-                    ),
-                    _QuickAccessCard(
-                      title: "Planning des séances",
-                      subtitle: "Calendrier académique",
-                      icon: Icons.calendar_month_outlined,
-                      onTap: () => onNavigate?.call(4),
-                    ),
-                  ]),
-                ),
-              ),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 80)),
-            ],
+            ),
           ),
         );
       },
@@ -216,10 +189,7 @@ class _StatCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -267,31 +237,25 @@ class _QuickAccessCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(Icons.chevron_right, color: colorScheme.primary, size: 20),
+          child: Icon(
+            Icons.chevron_right,
+            color: colorScheme.primary,
+            size: 20,
+          ),
         ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(subtitle),
         ),
-        trailing: Icon(
-          icon,
-          color: colorScheme.onSurfaceVariant,
-          size: 20,
-        ),
+        trailing: Icon(icon, color: colorScheme.onSurfaceVariant, size: 20),
         onTap: onTap,
       ),
     );

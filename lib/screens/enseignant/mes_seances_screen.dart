@@ -94,53 +94,45 @@ class _MesSeancesScreenState extends State<MesSeancesScreen> {
         final aujourdhui = DateFormat("d MMMM", "fr_FR").format(DateTime.now());
         return RefreshIndicator(
           onRefresh: _refreshData,
-          child: CustomScrollView(
+          child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: .start,
-
-                    children: [
-                      Text(
-                        "aujourdhui, $aujourdhui".toUpperCase(),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.secondary,
-                          fontWeight: .bold,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Mes Seances",
-                        style: theme.primaryTextTheme.headlineLarge?.copyWith(
-                          color: colorScheme.primary,
-                          fontWeight: .w900,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Planning du jour",
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: .w200,
-                        ),
-                      ),
-                    ],
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "aujourd'hui, $aujourdhui".toUpperCase(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.secondary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
                   ),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16.0),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => SeanceCard(seance: seances[index]),
-                    childCount: seances.length,
+                  const SizedBox(height: 8),
+                  Text(
+                    "Mes Seances",
+                    style: theme.primaryTextTheme.headlineLarge?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Planning du jour",
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w200,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    children: seances
+                        .map((seance) => SeanceCard(seance: seance))
+                        .toList(),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },

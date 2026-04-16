@@ -54,56 +54,55 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
             .length;
         return RefreshIndicator(
           onRefresh: _refreshData,
-          child: CustomScrollView(
+          child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: TopCard(total: totalAbsences),
-                ),
-              ),
-              if (totalAbsences > 0)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TopCard(total: totalAbsences),
+                  ),
+                  if (totalAbsences > 0)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 24, 8, 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Detail par matiere",
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            DateFormat(
+                              "d MMMM",
+                              "fr_FR",
+                            ).format(DateTime.now()),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.outline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (totalAbsences == 0)
+                    const SizedBox(height: 400, child: EmptyAbsenceState())
+                  else
+                    Column(
                       children: [
-                        Text(
-                          "Detail par matiere",
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          DateFormat("d MMMM", "fr_FR").format(DateTime.now()),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.outline,
-                          ),
-                        ),
+                        for (var absence in absences)
+                          AbsenceTile(absence: absence),
                       ],
                     ),
-                  ),
-                ),
-              if (totalAbsences == 0)
-                const SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: EmptyAbsenceState(),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => AbsenceTile(absence: absences[index]),
-                      childCount: absences.length,
-                    ),
-                  ),
-                ),
-              const SliverToBoxAdapter(child: SizedBox(height: 80)),
-            ],
+                  const SizedBox(height: 80),
+                ],
+              ),
+            ),
           ),
         );
       },
