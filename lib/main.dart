@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gest_absence_frontend/config/app_theme.dart';
 import 'package:gest_absence_frontend/models/utilisateur.dart';
-import 'package:gest_absence_frontend/screens/admin/admin_home.dart';
-import 'package:gest_absence_frontend/screens/enseignant/enseignant_home.dart';
-import 'package:gest_absence_frontend/screens/etudiant/etudiant_home.dart';
 import 'package:gest_absence_frontend/screens/login_screen.dart';
 import 'package:gest_absence_frontend/services/auth_service.dart';
+import 'package:gest_absence_frontend/utils/navigation_utils.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
@@ -57,26 +55,14 @@ class _MyAppState extends State<MyApp> {
           }
           final (activeSession, user) = snapshot.data!;
           return activeSession
-              ? _getHomeByRole(user!.role)
+              ? getHomeScreenByRole(
+                  user!.role,
+                  themeMode: _theme,
+                  onToggleTheme: _toggleTheme,
+                )
               : LoginScreen(themeMode: _theme, onToggleTheme: _toggleTheme);
         },
       ),
     );
-  }
-
-  Widget _getHomeByRole(String role) {
-    switch (role) {
-      case "etudiant":
-        return EtudiantHomeScreen(
-          themeMode: _theme,
-          onToggleTheme: _toggleTheme,
-        );
-      case "enseignant":
-        return EnseignantHome(themeMode: _theme, onToggleTheme: _toggleTheme);
-      case "admin":
-        return AdminHome(themeMode: _theme, onToggleTheme: _toggleTheme);
-      default:
-        return LoginScreen(themeMode: _theme, onToggleTheme: _toggleTheme);
-    }
   }
 }

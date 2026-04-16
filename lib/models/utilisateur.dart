@@ -1,8 +1,10 @@
+enum Role { admin, enseignant, etudiant, unknown }
+
 class Utilisateur {
   final int id;
   final String nom;
   final String prenom;
-  final String role;
+  final Role role;
   Utilisateur({
     required this.id,
     required this.nom,
@@ -14,7 +16,20 @@ class Utilisateur {
       id: json["user_id"],
       nom: json["nom"],
       prenom: json["prenom"],
-      role: json["role"] ?? "",
+      role: roleFromString(json["role"]),
     );
+  }
+}
+
+Role roleFromString(String? role) {
+  switch (role) {
+    case 'admin':
+      return .admin;
+    case 'enseignant':
+      return .enseignant;
+    case 'etudiant':
+      return .etudiant;
+    default:
+      return .unknown;
   }
 }

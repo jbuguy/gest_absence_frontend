@@ -25,7 +25,7 @@ class AuthService {
       await prefs.setBool("remember_me", rememberMe);
 
       await prefs.setInt("user_id", user.id);
-      await prefs.setString("role", user.role);
+      await prefs.setString("role", user.role.name);
       await prefs.setString("nom", user.nom);
       await prefs.setString("prenom", user.prenom);
     }
@@ -47,18 +47,13 @@ class AuthService {
       await prefs.clear();
       return (false, null);
     }
-
-    final role = prefs.getString("role") ?? "";
-    final nom = prefs.getString("nom") ?? "";
-    final prenom = prefs.getString("prenom") ?? "";
-    final id = prefs.getInt("user_id") ?? -1;
-    return (true, Utilisateur(id: id, nom: nom, prenom: prenom, role: role));
+    return (true, await getCurrentUser());
   }
 
   Future<Utilisateur?> getCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final role = prefs.getString("role") ?? "";
+    final role = roleFromString(prefs.getString("role") ?? "");
     final nom = prefs.getString("nom") ?? "";
     final prenom = prefs.getString("prenom") ?? "";
     final id = prefs.getInt("user_id") ?? -1;

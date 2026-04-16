@@ -98,7 +98,7 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Text(u.role),
+                        child: Text("${u.id}"),
                       ),
                       trailing: IconButton(
                         icon: Icon(
