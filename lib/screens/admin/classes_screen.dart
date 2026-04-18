@@ -12,17 +12,11 @@ class ClassesScreen extends StatefulWidget {
 class _ClassesScreenState extends State<ClassesScreen> {
   late Future<List<Classe>> futureClasses;
   final TextEditingController searchController = TextEditingController();
-  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     futureClasses = _loadClasses();
-    searchController.addListener(() {
-      setState(() {
-        searchQuery = searchController.text;
-      });
-    });
   }
 
   @override
@@ -40,11 +34,17 @@ class _ClassesScreenState extends State<ClassesScreen> {
   }
 
   List<Classe> _filterClasses(List<Classe> classes) {
-    if (searchQuery.isEmpty) return classes;
+    if (searchController.text.isEmpty) return classes;
     return classes
-        .where((classe) =>
-            classe.nom.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            classe.niveau.toLowerCase().contains(searchQuery.toLowerCase()))
+        .where(
+          (classe) =>
+              classe.nom.toLowerCase().contains(
+                searchController.text.toLowerCase(),
+              ) ||
+              classe.niveau.toLowerCase().contains(
+                searchController.text.toLowerCase(),
+              ),
+        )
         .toList();
   }
 
@@ -54,7 +54,8 @@ class _ClassesScreenState extends State<ClassesScreen> {
       builder: (context) => AlertDialog(
         title: const Text("Confirmer la suppression"),
         content: Text(
-            "Êtes-vous sûr de vouloir supprimer la classe ${classe.nom} ?"),
+          "Êtes-vous sûr de vouloir supprimer la classe ${classe.nom} ?",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -68,16 +69,14 @@ class _ClassesScreenState extends State<ClassesScreen> {
                 Navigator.pop(context);
                 _refreshData();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Classe supprimée avec succès"),
-                  ),
+                  const SnackBar(content: Text("Classe supprimée avec succès")),
                 );
               } catch (e) {
                 if (!context.mounted) return;
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Erreur: $e")),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
               }
             },
             child: const Text("Supprimer"),
@@ -129,7 +128,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              suffixIcon: searchQuery.isNotEmpty
+              suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
                       onPressed: () {
@@ -156,7 +155,8 @@ class _ClassesScreenState extends State<ClassesScreen> {
               final filteredClasses = _filterClasses(snapshot.data!);
               if (filteredClasses.isEmpty) {
                 return const Center(
-                    child: Text("Aucune classe ne correspond à votre recherche"));
+                  child: Text("Aucune classe ne correspond à votre recherche"),
+                );
               }
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -246,8 +246,7 @@ class _ClasseDetailDialogState extends State<ClasseDetailDialog> {
     super.initState();
     isEdit = widget.classe != null;
     nomController = TextEditingController(text: widget.classe?.nom ?? "");
-    niveauController =
-        TextEditingController(text: widget.classe?.niveau ?? "");
+    niveauController = TextEditingController(text: widget.classe?.niveau ?? "");
   }
 
   @override
@@ -316,12 +315,14 @@ class _ClasseDetailDialogState extends State<ClasseDetailDialog> {
           ),
         );
       }
-      if (!context.mounted) return;
+      if (!mounted) return;
       Navigator.pop(context);
       widget.onSuccess();
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Erreur: $e")));
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
     }
   }
 }

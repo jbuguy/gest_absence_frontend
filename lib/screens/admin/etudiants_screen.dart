@@ -15,17 +15,11 @@ class EtudiantsScreen extends StatefulWidget {
 class _EtudiantsScreenState extends State<EtudiantsScreen> {
   late Future<List<Utilisateur>> futureEtudiants;
   final TextEditingController searchController = TextEditingController();
-  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _refreshData();
-    searchController.addListener(() {
-      setState(() {
-        searchQuery = searchController.text;
-      });
-    });
   }
 
   @override
@@ -41,13 +35,12 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
   }
 
   List<Utilisateur> _filterEtudiants(List<Utilisateur> etudiants) {
-    if (searchQuery.isEmpty) return etudiants;
+    if (searchController.text.isEmpty) return etudiants;
     return etudiants
         .where(
-          (u) =>
-              u.nom.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              u.prenom.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              u.id.toString().contains(searchQuery),
+          (u) => "${u.nom} ${u.prenom}".toLowerCase().contains(
+            searchController.text.toLowerCase(),
+          ),
         )
         .toList();
   }
@@ -102,7 +95,7 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: .spaceBetween,
             children: [
               Text(
                 "Étudiants",
@@ -132,7 +125,7 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              suffixIcon: searchQuery.isNotEmpty
+              suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
                       onPressed: () {
@@ -147,19 +140,13 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
           child: FutureBuilder<List<Utilisateur>>(
             future: futureEtudiants,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+              if (snapshot.connectionState == .waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
                 return Center(child: Text("Erreur: ${snapshot.error}"));
               }
-              final filteredEtudiants = _filterEtudiants(snapshot.data ?? []);
-              if (filteredEtudiants.isEmpty &&
-                  (snapshot.data ?? []).isNotEmpty) {
-                return const Center(
-                  child: Text("Aucun étudiant ne correspond à votre recherche"),
-                );
-              }
+              final filteredEtudiants = _filterEtudiants(snapshot.data!);
               if (filteredEtudiants.isEmpty) {
                 return const Center(child: Text("Aucun étudiant trouvé"));
               }

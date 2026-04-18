@@ -19,17 +19,11 @@ class SeancesScreen extends StatefulWidget {
 class _SeancesScreenState extends State<SeancesScreen> {
   late Future<List<Seance>> futureSeances;
   final TextEditingController searchController = TextEditingController();
-  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     futureSeances = _loadSeances();
-    searchController.addListener(() {
-      setState(() {
-        searchQuery = searchController.text;
-      });
-    });
   }
 
   @override
@@ -48,17 +42,16 @@ class _SeancesScreenState extends State<SeancesScreen> {
   }
 
   List<Seance> _filterSeances(List<Seance> seances) {
-    if (searchQuery.isEmpty) return seances;
+    if (searchController.text.isEmpty) return seances;
     return seances
         .where(
           (seance) =>
               seance.matiere.toLowerCase().contains(
-                searchQuery.toLowerCase(),
+                searchController.text.toLowerCase(),
               ) ||
               seance.classeNom.toLowerCase().contains(
-                searchQuery.toLowerCase(),
-              ) ||
-              seance.date.contains(searchQuery),
+                searchController.text.toLowerCase(),
+              ),
         )
         .toList();
   }
@@ -111,7 +104,7 @@ class _SeancesScreenState extends State<SeancesScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: .spaceBetween,
             children: [
               Text(
                 "Séances",
@@ -138,10 +131,8 @@ class _SeancesScreenState extends State<SeancesScreen> {
             decoration: InputDecoration(
               hintText: "Rechercher une séance...",
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              suffixIcon: searchQuery.isNotEmpty
+              border: OutlineInputBorder(borderRadius: .circular(8)),
+              suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
                       onPressed: () {
@@ -156,7 +147,7 @@ class _SeancesScreenState extends State<SeancesScreen> {
           child: FutureBuilder<List<Seance>>(
             future: futureSeances,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+              if (snapshot.connectionState == .waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
@@ -184,15 +175,11 @@ class _SeancesScreenState extends State<SeancesScreen> {
                         horizontal: 20,
                         vertical: 8,
                       ),
-                      leading: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      leading: CircleAvatar(
+                        backgroundColor: colorScheme.primaryContainer,
                         child: Icon(
                           Icons.calendar_today_outlined,
-                          color: colorScheme.primary,
+                          color: colorScheme.onPrimaryContainer,
                           size: 20,
                         ),
                       ),
@@ -209,7 +196,7 @@ class _SeancesScreenState extends State<SeancesScreen> {
                         ),
                       ),
                       trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisSize: .min,
                         children: [
                           IconButton(
                             onPressed: () => showDialog(
@@ -255,8 +242,9 @@ class SeanceDetailDialog extends StatefulWidget {
 }
 
 class _SeanceDetailDialogState extends State<SeanceDetailDialog> {
-  late Future<List<dynamic>> _futureData;
   late final bool isEdit;
+  bool _isLoading = true;
+  String? _error;
 
   List<Enseignant> enseignants = [];
   List<Classe> classes = [];
@@ -269,52 +257,51 @@ class _SeanceDetailDialogState extends State<SeanceDetailDialog> {
   DateTime? selectedDate;
   TimeOfDay? heureDebut;
   TimeOfDay? heureFin;
-  bool isFirst = true;
 
   @override
   void initState() {
     super.initState();
     isEdit = widget.seance != null;
-    _futureData = Future.wait([
-      EnseignantService().getEnseignants(),
-      ClasseService().getClasses(),
-      MatiereService().getMatieres(),
-    ]);
+    _loadData();
   }
 
-  void initData(List<dynamic> data) {
-    if (!isFirst) return;
-    enseignants = data[0];
-    classes = data[1];
-    matieres = data[2];
-    if (widget.seance != null) {
-      final s = widget.seance!;
-      selectedEnseignant = enseignants.firstWhere(
-        (p) => p.id == s.enseignantId,
-      );
-      selectedClasse = classes.firstWhere((c) => c.id == s.classeId);
-      selectedMatiere = matieres.firstWhere((m) => m.id == s.matiereId);
-      selectedDate = DateTime.tryParse(s.date);
-      heureDebut = _parseTime(s.heureDebut);
-      heureFin = _parseTime(s.heureFin);
-    }
-    isFirst = false;
-  }
-
-  Future<void> _pickTime(bool isStart) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
+  Future<void> _loadData() async {
+    try {
+      final results = await Future.wait([
+        EnseignantService().getEnseignants(),
+        ClasseService().getClasses(),
+        MatiereService().getMatieres(),
+      ]);
+      if (!mounted) return;
       setState(() {
-        if (isStart) {
-          heureDebut = picked;
-        } else {
-          heureFin = picked;
+        enseignants = results[0] as List<Enseignant>;
+        classes = results[1] as List<Classe>;
+        matieres = results[2] as List<Matiere>;
+        if (widget.seance != null) {
+          final s = widget.seance!;
+          selectedEnseignant = enseignants.firstWhere(
+            (e) => e.id == s.enseignantId,
+          );
+          selectedClasse = classes.firstWhere((c) => c.id == s.classeId);
+          selectedMatiere = matieres.firstWhere((m) => m.id == s.matiereId);
+          selectedDate = DateTime.tryParse(s.date);
+          heureDebut = _parseTime(s.heureDebut);
+          heureFin = _parseTime(s.heureFin);
         }
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
       });
     }
+  }
+
+  TimeOfDay _parseTime(String time) {
+    final parts = time.split(":");
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 
   Future<void> _pickDate() async {
@@ -327,164 +314,125 @@ class _SeanceDetailDialogState extends State<SeanceDetailDialog> {
     if (picked != null) setState(() => selectedDate = picked);
   }
 
-  TimeOfDay _parseTime(String time) {
-    final parts = time.split(":");
-    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  Future<void> _pickTime(bool isStart) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() => isStart ? heureDebut = picked : heureFin = picked);
+    }
+  }
+
+  Widget _timePicker(String label, TimeOfDay? value, VoidCallback onTap) {
+    return Expanded(
+      child: OutlinedButton.icon(
+        onPressed: onTap,
+        icon: const Icon(Icons.access_time_outlined, size: 18),
+        label: Text(value == null ? label : value.format(context)),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return AlertDialog(
       title: Text(isEdit ? "Modifier la séance" : "Ajouter une séance"),
-      content: FutureBuilder(
-        future: _futureData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox(
-              height: 100,
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (snapshot.hasError) {
-            return Text("Erreur: ${snapshot.error}");
-          }
-          initData(snapshot.data!);
-          return SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField(
-                  initialValue: selectedEnseignant,
-                  decoration: const InputDecoration(
-                    labelText: "Enseignant",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: enseignants
-                      .map(
-                        (e) => DropdownMenuItem(
-                          value: e,
-                          child: Text("${e.prenom} ${e.nom}"),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) => setState(() => selectedEnseignant = v),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField(
-                  initialValue: selectedClasse,
-                  decoration: const InputDecoration(
-                    labelText: "Classe",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: classes
-                      .map(
-                        (c) => DropdownMenuItem(value: c, child: Text(c.nom)),
-                      )
-                      .toList(),
-                  onChanged: (v) => setState(() => selectedClasse = v),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField(
-                  initialValue: selectedMatiere,
-                  decoration: const InputDecoration(
-                    labelText: "Matière",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: matieres
-                      .map(
-                        (m) => DropdownMenuItem(value: m, child: Text(m.nom)),
-                      )
-                      .toList(),
-                  onChanged: (v) => setState(() => selectedMatiere = v),
-                ),
-                const SizedBox(height: 12),
-                // Date picker row
-                OutlinedButton.icon(
-                  onPressed: _pickDate,
-                  icon: Icon(
-                    Icons.calendar_today_outlined,
-                    color: colorScheme.primary,
-                    size: 18,
-                  ),
-                  label: Text(
-                    selectedDate == null
-                        ? "Choisir une date"
-                        : DateFormat(
-                            "d MMMM yyyy",
-                            "fr_FR",
-                          ).format(selectedDate!),
-                    style: TextStyle(
-                      color: selectedDate == null
-                          ? colorScheme.onSurfaceVariant
-                          : colorScheme.onSurface,
+      content: _isLoading
+          ? const SizedBox(child: Center(child: CircularProgressIndicator()))
+          : _error != null
+          ? Text("Erreur: $_error")
+          : SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<Enseignant>(
+                    initialValue: selectedEnseignant,
+                    decoration: const InputDecoration(
+                      labelText: "Enseignant",
+                      border: OutlineInputBorder(),
                     ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
-                    alignment: Alignment.centerLeft,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _pickTime(true),
-                        icon: Icon(
-                          Icons.access_time_outlined,
-                          color: colorScheme.primary,
-                          size: 18,
-                        ),
-                        label: Text(
-                          heureDebut == null
-                              ? "Heure début"
-                              : heureDebut!.format(context),
-                          style: TextStyle(
-                            color: heureDebut == null
-                                ? colorScheme.onSurfaceVariant
-                                : colorScheme.onSurface,
+                    items: enseignants
+                        .map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text("${e.prenom} ${e.nom}"),
                           ),
-                        ),
-                      ),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() => selectedEnseignant = v),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<Classe>(
+                    initialValue: selectedClasse,
+                    decoration: const InputDecoration(
+                      labelText: "Classe",
+                      border: OutlineInputBorder(),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _pickTime(false),
-                        icon: Icon(
-                          Icons.access_time_outlined,
-                          color: colorScheme.primary,
-                          size: 18,
-                        ),
-                        label: Text(
-                          heureFin == null
-                              ? "Heure fin"
-                              : heureFin!.format(context),
-                          style: TextStyle(
-                            color: heureFin == null
-                                ? colorScheme.onSurfaceVariant
-                                : colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
+                    items: classes
+                        .map(
+                          (c) => DropdownMenuItem(value: c, child: Text(c.nom)),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() => selectedClasse = v),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<Matiere>(
+                    initialValue: selectedMatiere,
+                    decoration: const InputDecoration(
+                      labelText: "Matière",
+                      border: OutlineInputBorder(),
                     ),
-                  ],
-                ),
-              ],
+                    items: matieres
+                        .map(
+                          (m) => DropdownMenuItem(value: m, child: Text(m.nom)),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() => selectedMatiere = v),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: _pickDate,
+                    icon: const Icon(Icons.calendar_today_outlined, size: 18),
+                    label: Text(
+                      selectedDate == null
+                          ? "Choisir une date"
+                          : DateFormat(
+                              "d MMMM yyyy",
+                              "fr_FR",
+                            ).format(selectedDate!),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                      alignment: Alignment.centerLeft,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _timePicker(
+                        "Heure début",
+                        heureDebut,
+                        () => _pickTime(true),
+                      ),
+                      const SizedBox(width: 12),
+                      _timePicker(
+                        "Heure fin",
+                        heureFin,
+                        () => _pickTime(false),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          );
-        },
-      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text("Annuler"),
         ),
         FilledButton(
-          onPressed: _submit,
+          onPressed: _isLoading ? null : _submit,
           child: Text(isEdit ? "Modifier" : "Ajouter"),
         ),
       ],
@@ -507,7 +455,7 @@ class _SeanceDetailDialogState extends State<SeanceDetailDialog> {
       id: widget.seance?.id ?? -1,
       classeId: selectedClasse!.id,
       classeNom: selectedClasse!.nom,
-      enseignantId: selectedEnseignant?.id ?? 0,
+      enseignantId: selectedEnseignant!.id!,
       matiereId: selectedMatiere!.id,
       matiere: selectedMatiere!.nom,
       date: DateFormat("yyyy-MM-dd").format(selectedDate!),

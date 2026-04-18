@@ -12,17 +12,11 @@ class EnseignantsScreen extends StatefulWidget {
 class _EnseignantsScreenState extends State<EnseignantsScreen> {
   late Future<List<Enseignant>> futureEnseignants;
   final TextEditingController searchController = TextEditingController();
-  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _refresh();
-    searchController.addListener(() {
-      setState(() {
-        searchQuery = searchController.text;
-      });
-    });
   }
 
   @override
@@ -38,12 +32,13 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
   }
 
   List<Enseignant> _filterEnseignants(List<Enseignant> enseignants) {
-    if (searchQuery.isEmpty) return enseignants;
+    if (searchController.text.isEmpty) return enseignants;
     return enseignants
-        .where((ens) =>
-            ens.nom.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            ens.prenom.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            (ens.email ?? "").toLowerCase().contains(searchQuery.toLowerCase()))
+        .where(
+          (ens) => "${ens.nom} ${ens.prenom}".toLowerCase().contains(
+            searchController.text.toLowerCase(),
+          ),
+        )
         .toList();
   }
 
@@ -53,7 +48,8 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
       builder: (context) => AlertDialog(
         title: const Text("Confirmer la suppression"),
         content: Text(
-            "Êtes-vous sûr de vouloir supprimer ${ens.prenom} ${ens.nom} ?"),
+          "Êtes-vous sûr de vouloir supprimer ${ens.prenom} ${ens.nom} ?",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -74,9 +70,9 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
               } catch (e) {
                 if (!context.mounted) return;
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Erreur: $e")),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
               }
             },
             child: const Text("Supprimer"),
@@ -96,11 +92,11 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: .spaceBetween,
             children: [
               Text(
                 "Enseignants",
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: .bold),
               ),
               FilledButton.icon(
                 onPressed: () => showDialog(
@@ -121,10 +117,8 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
             decoration: InputDecoration(
               hintText: "Rechercher un enseignant...",
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              suffixIcon: searchQuery.isNotEmpty
+              border: OutlineInputBorder(borderRadius: .circular(8)),
+              suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
                       onPressed: () {
@@ -139,16 +133,22 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
           child: FutureBuilder<List<Enseignant>>(
             future: futureEnseignants,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+              if (snapshot.connectionState == .waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
                 return Center(child: Text("Erreur: ${snapshot.error}"));
               }
-              final filteredEnseignants = _filterEnseignants(snapshot.data ?? []);
-              if (filteredEnseignants.isEmpty && (snapshot.data ?? []).isNotEmpty) {
+              final filteredEnseignants = _filterEnseignants(
+                snapshot.data ?? [],
+              );
+              if (filteredEnseignants.isEmpty &&
+                  (snapshot.data ?? []).isNotEmpty) {
                 return const Center(
-                    child: Text("Aucun enseignant ne correspond à votre recherche"));
+                  child: Text(
+                    "Aucun enseignant ne correspond à votre recherche",
+                  ),
+                );
               }
               if (filteredEnseignants.isEmpty) {
                 return const Center(child: Text("Aucun enseignant trouvé"));
@@ -170,19 +170,17 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
                           alpha: 0.12,
                         ),
                         child: Text(
-                          ens.prenom.isNotEmpty
-                              ? ens.prenom[0].toUpperCase()
-                              : "?",
+                          ens.prenom[0].toUpperCase(),
                           style: TextStyle(
                             color: colorScheme.primary,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: .bold,
                           ),
                         ),
                       ),
                       title: Text(
                         "${ens.prenom} ${ens.nom}",
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: .bold,
                         ),
                       ),
                       subtitle: Padding(
@@ -190,7 +188,7 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
                         child: Text(ens.specialite ?? "Sans spécialité"),
                       ),
                       trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisSize: .min,
                         children: [
                           IconButton(
                             icon: Icon(
@@ -241,7 +239,6 @@ class EnseignantDetailDialog extends StatefulWidget {
 }
 
 class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
-  final _formKey = GlobalKey<FormState>();
   final _nomCtrl = TextEditingController();
   final _prenomCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
@@ -260,7 +257,16 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
   }
 
   void _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    final isCreate = widget.enseignant == null;
+    if (_nomCtrl.text.isEmpty ||
+        _prenomCtrl.text.isEmpty ||
+        _specCtrl.text.isEmpty ||
+        (isCreate && (_emailCtrl.text.isEmpty || _passCtrl.text.isEmpty))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Tous les champs sont requis")),
+      );
+      return;
+    }
     final ens = Enseignant(
       userId: widget.enseignant?.userId,
       nom: _nomCtrl.text,
@@ -270,7 +276,7 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
       matiereId: 1,
     );
     try {
-      if (widget.enseignant == null) {
+      if (isCreate) {
         await EnseignantService().createEnseignant(ens, _passCtrl.text);
       } else {
         await EnseignantService().updateEnseignant(ens);
@@ -287,65 +293,56 @@ class _EnseignantDetailDialogState extends State<EnseignantDetailDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isCreate = widget.enseignant == null;
     return AlertDialog(
-      title: Text(
-        widget.enseignant == null ? "Nouvel enseignant" : "Modifier enseignant",
-      ),
-      content: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _nomCtrl,
+      title: Text(isCreate ? "ajouter un enseignant" : "Modifier enseignant"),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nomCtrl,
+              decoration: const InputDecoration(
+                labelText: "Nom",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _prenomCtrl,
+              decoration: const InputDecoration(
+                labelText: "Prénom",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            if (isCreate) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _emailCtrl,
                 decoration: const InputDecoration(
-                  labelText: "Nom",
+                  labelText: "Email",
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) => v!.isEmpty ? "Champ requis" : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _prenomCtrl,
+              TextField(
+                controller: _passCtrl,
+                obscureText: true,
                 decoration: const InputDecoration(
-                  labelText: "Prénom",
+                  labelText: "Mot de passe",
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) => v!.isEmpty ? "Champ requis" : null,
-              ),
-              if (widget.enseignant == null) ...[
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _emailCtrl,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) => v!.isEmpty ? "Champ requis" : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _passCtrl,
-                  decoration: const InputDecoration(
-                    labelText: "Mot de passe",
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  validator: (v) => v!.isEmpty ? "Champ requis" : null,
-                ),
-              ],
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _specCtrl,
-                decoration: const InputDecoration(
-                  labelText: "Spécialité",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) => v!.isEmpty ? "Champ requis" : null,
               ),
             ],
-          ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _specCtrl,
+              decoration: const InputDecoration(
+                labelText: "Spécialité",
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
         ),
       ),
       actions: [
