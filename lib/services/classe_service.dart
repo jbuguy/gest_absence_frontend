@@ -34,4 +34,13 @@ class ClasseService {
     }
     throw Exception(response["message"] ?? "Error fetching classes");
   }
+
+  Future<void> deleteClasse(int id) async {
+    final response = await _api.delete(ApiConfig.classes, id: id);
+
+    if (response["success"] == 1) {
+      return;
+    }
+    throw Exception(response["message"] ?? "Error deleting classe");
+  }
 }

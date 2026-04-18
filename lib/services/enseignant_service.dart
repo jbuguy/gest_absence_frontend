@@ -26,4 +26,9 @@ class EnseignantService {
     final response = await _api.put(ApiConfig.adminEnseignant, ens.toJson());
     if (response["success"] != 1) throw Exception(response["message"]);
   }
+
+  Future<void> deleteEnseignant(int id) async {
+    final response = await _api.delete(ApiConfig.adminEnseignant, id: id);
+    if (response["success"] != 1) throw Exception(response["message"]);
+  }
 }

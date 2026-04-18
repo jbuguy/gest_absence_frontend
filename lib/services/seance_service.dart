@@ -42,4 +42,12 @@ class SeanceService {
     }
     throw Exception(response["message"] ?? "error creating seance");
   }
+
+  Future<void> deleteSeance(int id) async {
+    final response = await _api.delete(ApiConfig.adminSeance, id: id);
+    if (response["success"] == 1) {
+      return;
+    }
+    throw Exception(response["message"] ?? "error deleting seance");
+  }
 }

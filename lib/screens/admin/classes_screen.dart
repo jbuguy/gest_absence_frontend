@@ -11,11 +11,24 @@ class ClassesScreen extends StatefulWidget {
 
 class _ClassesScreenState extends State<ClassesScreen> {
   late Future<List<Classe>> futureClasses;
+  final TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     futureClasses = _loadClasses();
+    searchController.addListener(() {
+      setState(() {
+        searchQuery = searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   Future<List<Classe>> _loadClasses() async => ClasseService().getClasses();
@@ -24,6 +37,54 @@ class _ClassesScreenState extends State<ClassesScreen> {
     setState(() {
       futureClasses = _loadClasses();
     });
+  }
+
+  List<Classe> _filterClasses(List<Classe> classes) {
+    if (searchQuery.isEmpty) return classes;
+    return classes
+        .where((classe) =>
+            classe.nom.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            classe.niveau.toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
+  }
+
+  void _deleteClasse(Classe classe) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmer la suppression"),
+        content: Text(
+            "Êtes-vous sûr de vouloir supprimer la classe ${classe.nom} ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Annuler"),
+          ),
+          FilledButton(
+            onPressed: () async {
+              try {
+                await ClasseService().deleteClasse(classe.id);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                _refreshData();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Classe supprimée avec succès"),
+                  ),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Erreur: $e")),
+                );
+              }
+            },
+            child: const Text("Supprimer"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -58,6 +119,27 @@ class _ClassesScreenState extends State<ClassesScreen> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: "Rechercher une classe...",
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              suffixIcon: searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        searchController.clear();
+                      },
+                    )
+                  : null,
+            ),
+          ),
+        ),
         Expanded(
           child: FutureBuilder<List<Classe>>(
             future: futureClasses,
@@ -71,12 +153,16 @@ class _ClassesScreenState extends State<ClassesScreen> {
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text("Aucune classe trouvée"));
               }
-              final classes = snapshot.data!;
+              final filteredClasses = _filterClasses(snapshot.data!);
+              if (filteredClasses.isEmpty) {
+                return const Center(
+                    child: Text("Aucune classe ne correspond à votre recherche"));
+              }
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: classes.length,
+                itemCount: filteredClasses.length,
                 itemBuilder: (context, index) {
-                  final classe = classes[index];
+                  final classe = filteredClasses[index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
@@ -121,7 +207,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
                             ),
                           ),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () => _deleteClasse(classe),
                             icon: Icon(
                               Icons.delete_outline,
                               color: colorScheme.error,

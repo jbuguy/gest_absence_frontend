@@ -11,17 +11,79 @@ class EnseignantsScreen extends StatefulWidget {
 
 class _EnseignantsScreenState extends State<EnseignantsScreen> {
   late Future<List<Enseignant>> futureEnseignants;
+  final TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _refresh();
+    searchController.addListener(() {
+      setState(() {
+        searchQuery = searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   void _refresh() {
     setState(() {
       futureEnseignants = EnseignantService().getEnseignants();
     });
+  }
+
+  List<Enseignant> _filterEnseignants(List<Enseignant> enseignants) {
+    if (searchQuery.isEmpty) return enseignants;
+    return enseignants
+        .where((ens) =>
+            ens.nom.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            ens.prenom.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            (ens.email ?? "").toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
+  }
+
+  void _deleteEnseignant(Enseignant ens) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmer la suppression"),
+        content: Text(
+            "Êtes-vous sûr de vouloir supprimer ${ens.prenom} ${ens.nom} ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Annuler"),
+          ),
+          FilledButton(
+            onPressed: () async {
+              try {
+                await EnseignantService().deleteEnseignant(ens.userId!);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                _refresh();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Enseignant supprimé avec succès"),
+                  ),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Erreur: $e")),
+                );
+              }
+            },
+            child: const Text("Supprimer"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -34,11 +96,11 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
           child: Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Enseignants",
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: .bold),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               FilledButton.icon(
                 onPressed: () => showDialog(
@@ -52,6 +114,27 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: "Rechercher un enseignant...",
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              suffixIcon: searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        searchController.clear();
+                      },
+                    )
+                  : null,
+            ),
+          ),
+        ),
         Expanded(
           child: FutureBuilder<List<Enseignant>>(
             future: futureEnseignants,
@@ -62,12 +145,19 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
               if (snapshot.hasError) {
                 return Center(child: Text("Erreur: ${snapshot.error}"));
               }
-              final enseignants = snapshot.data ?? [];
+              final filteredEnseignants = _filterEnseignants(snapshot.data ?? []);
+              if (filteredEnseignants.isEmpty && (snapshot.data ?? []).isNotEmpty) {
+                return const Center(
+                    child: Text("Aucun enseignant ne correspond à votre recherche"));
+              }
+              if (filteredEnseignants.isEmpty) {
+                return const Center(child: Text("Aucun enseignant trouvé"));
+              }
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: enseignants.length,
+                itemCount: filteredEnseignants.length,
                 itemBuilder: (context, index) {
-                  final ens = enseignants[index];
+                  final ens = filteredEnseignants[index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
@@ -85,32 +175,44 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
                               : "?",
                           style: TextStyle(
                             color: colorScheme.primary,
-                            fontWeight: .bold,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                       title: Text(
                         "${ens.prenom} ${ens.nom}",
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: .bold,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(ens.specialite ?? "Sans spécialité"),
                       ),
-                      trailing: IconButton(
-                        icon: Icon(
-                          Icons.edit_outlined,
-                          color: colorScheme.primary,
-                        ),
-                        onPressed: () => showDialog(
-                          context: context,
-                          builder: (context) => EnseignantDetailDialog(
-                            enseignant: ens,
-                            onSuccess: _refresh,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              color: colorScheme.primary,
+                            ),
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (context) => EnseignantDetailDialog(
+                                enseignant: ens,
+                                onSuccess: _refresh,
+                              ),
+                            ),
                           ),
-                        ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: colorScheme.error,
+                            ),
+                            onPressed: () => _deleteEnseignant(ens),
+                          ),
+                        ],
                       ),
                     ),
                   );

@@ -18,11 +18,24 @@ class SeancesScreen extends StatefulWidget {
 
 class _SeancesScreenState extends State<SeancesScreen> {
   late Future<List<Seance>> futureSeances;
+  final TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     futureSeances = _loadSeances();
+    searchController.addListener(() {
+      setState(() {
+        searchQuery = searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   Future<List<Seance>> _loadSeances() async =>
@@ -32,6 +45,60 @@ class _SeancesScreenState extends State<SeancesScreen> {
     setState(() {
       futureSeances = _loadSeances();
     });
+  }
+
+  List<Seance> _filterSeances(List<Seance> seances) {
+    if (searchQuery.isEmpty) return seances;
+    return seances
+        .where(
+          (seance) =>
+              seance.matiere.toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ) ||
+              seance.classeNom.toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ) ||
+              seance.date.contains(searchQuery),
+        )
+        .toList();
+  }
+
+  void _deleteSeance(Seance seance) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmer la suppression"),
+        content: Text(
+          "Êtes-vous sûr de vouloir supprimer la séance de ${seance.matiere} ?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Annuler"),
+          ),
+          FilledButton(
+            onPressed: () async {
+              try {
+                await SeanceService().deleteSeance(seance.id);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                _refreshData();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Séance supprimée avec succès")),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
+              }
+            },
+            child: const Text("Supprimer"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -44,11 +111,13 @@ class _SeancesScreenState extends State<SeancesScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
           child: Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Séances",
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: .bold),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               FilledButton.icon(
                 onPressed: () => showDialog(
@@ -60,6 +129,27 @@ class _SeancesScreenState extends State<SeancesScreen> {
                 label: const Text("Ajouter"),
               ),
             ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: "Rechercher une séance...",
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              suffixIcon: searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        searchController.clear();
+                      },
+                    )
+                  : null,
+            ),
           ),
         ),
         Expanded(
@@ -75,13 +165,18 @@ class _SeancesScreenState extends State<SeancesScreen> {
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text("Aucune séance trouvée"));
               }
-              final seances = snapshot.data!;
+              final filteredSeances = _filterSeances(snapshot.data!);
+              if (filteredSeances.isEmpty) {
+                return const Center(
+                  child: Text("Aucune séance ne correspond à votre recherche"),
+                );
+              }
 
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: seances.length,
+                itemCount: filteredSeances.length,
                 itemBuilder: (context, index) {
-                  final seance = seances[index];
+                  final seance = filteredSeances[index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
@@ -93,7 +188,7 @@ class _SeancesScreenState extends State<SeancesScreen> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.1),
-                          borderRadius: .circular(12),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.calendar_today_outlined,
@@ -104,7 +199,7 @@ class _SeancesScreenState extends State<SeancesScreen> {
                       title: Text(
                         seance.matiere,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: .bold,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       subtitle: Padding(
@@ -114,7 +209,7 @@ class _SeancesScreenState extends State<SeancesScreen> {
                         ),
                       ),
                       trailing: Row(
-                        mainAxisSize: .min,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
                             onPressed: () => showDialog(
@@ -130,7 +225,7 @@ class _SeancesScreenState extends State<SeancesScreen> {
                             ),
                           ),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () => _deleteSeance(seance),
                             icon: Icon(
                               Icons.delete_outline,
                               color: colorScheme.error,

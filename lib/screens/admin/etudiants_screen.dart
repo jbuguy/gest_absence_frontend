@@ -14,17 +14,82 @@ class EtudiantsScreen extends StatefulWidget {
 
 class _EtudiantsScreenState extends State<EtudiantsScreen> {
   late Future<List<Utilisateur>> futureEtudiants;
+  final TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _refreshData();
+    searchController.addListener(() {
+      setState(() {
+        searchQuery = searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   void _refreshData() {
     setState(() {
       futureEtudiants = EtudiantService().getEtudiants();
     });
+  }
+
+  List<Utilisateur> _filterEtudiants(List<Utilisateur> etudiants) {
+    if (searchQuery.isEmpty) return etudiants;
+    return etudiants
+        .where(
+          (u) =>
+              u.nom.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              u.prenom.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              u.id.toString().contains(searchQuery),
+        )
+        .toList();
+  }
+
+  void _deleteEtudiant(Utilisateur u) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmer la suppression"),
+        content: Text(
+          "Êtes-vous sûr de vouloir supprimer ${u.prenom} ${u.nom} ?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Annuler"),
+          ),
+          FilledButton(
+            onPressed: () async {
+              try {
+                await EtudiantService().deleteEtudiant(u.id);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                _refreshData();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Étudiant supprimé avec succès"),
+                  ),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
+              }
+            },
+            child: const Text("Supprimer"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -57,6 +122,27 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: "Rechercher un étudiant...",
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              suffixIcon: searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        searchController.clear();
+                      },
+                    )
+                  : null,
+            ),
+          ),
+        ),
         Expanded(
           child: FutureBuilder<List<Utilisateur>>(
             future: futureEtudiants,
@@ -67,12 +153,21 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
               if (snapshot.hasError) {
                 return Center(child: Text("Erreur: ${snapshot.error}"));
               }
-              final etudiants = snapshot.data ?? [];
+              final filteredEtudiants = _filterEtudiants(snapshot.data ?? []);
+              if (filteredEtudiants.isEmpty &&
+                  (snapshot.data ?? []).isNotEmpty) {
+                return const Center(
+                  child: Text("Aucun étudiant ne correspond à votre recherche"),
+                );
+              }
+              if (filteredEtudiants.isEmpty) {
+                return const Center(child: Text("Aucun étudiant trouvé"));
+              }
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: etudiants.length,
+                itemCount: filteredEtudiants.length,
                 itemBuilder: (context, index) {
-                  final u = etudiants[index];
+                  final u = filteredEtudiants[index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
@@ -100,18 +195,30 @@ class _EtudiantsScreenState extends State<EtudiantsScreen> {
                         padding: const EdgeInsets.only(top: 4),
                         child: Text("${u.id}"),
                       ),
-                      trailing: IconButton(
-                        icon: Icon(
-                          Icons.edit_outlined,
-                          color: colorScheme.primary,
-                        ),
-                        onPressed: () => showDialog(
-                          context: context,
-                          builder: (context) => EtudiantDetailDialog(
-                            etudiant: u,
-                            onSuccess: _refreshData,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              color: colorScheme.primary,
+                            ),
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (context) => EtudiantDetailDialog(
+                                etudiant: u,
+                                onSuccess: _refreshData,
+                              ),
+                            ),
                           ),
-                        ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: colorScheme.error,
+                            ),
+                            onPressed: () => _deleteEtudiant(u),
+                          ),
+                        ],
                       ),
                     ),
                   );

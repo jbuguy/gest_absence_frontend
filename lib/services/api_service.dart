@@ -16,7 +16,6 @@ class ApiService {
     int? userId,
     String? role,
   }) async {
-    print(body);
     final requestBody = {...body, "user_id": ?userId, "role": ?role};
     final response = await http.post(
       Uri.parse(url),
@@ -35,6 +34,13 @@ class ApiService {
     final response = await http.put(
       Uri.parse(url),
       body: jsonEncode(requestBody),
+    );
+    return _handleResponse(response);
+  }
+
+  Future<dynamic> delete(String url, {int? id}) async {
+    final response = await http.delete(
+      Uri.parse("$url${id == null ? "" : "?id=$id"}"),
     );
     return _handleResponse(response);
   }
