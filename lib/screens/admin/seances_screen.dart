@@ -19,6 +19,7 @@ class SeancesScreen extends StatefulWidget {
 class _SeancesScreenState extends State<SeancesScreen> {
   late Future<List<Seance>> futureSeances;
   final TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
 
   @override
   void initState() {
@@ -128,6 +129,9 @@ class _SeancesScreenState extends State<SeancesScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: TextField(
             controller: searchController,
+            onChanged: (value) => setState(() {
+              searchQuery = value;
+            }),
             decoration: InputDecoration(
               hintText: "Rechercher une séance...",
               prefixIcon: const Icon(Icons.search),
@@ -137,6 +141,9 @@ class _SeancesScreenState extends State<SeancesScreen> {
                       icon: const Icon(Icons.clear),
                       onPressed: () {
                         searchController.clear();
+                        setState(() {
+                          searchQuery = "";
+                        });
                       },
                     )
                   : null,

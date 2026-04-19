@@ -12,7 +12,7 @@ class ClassesScreen extends StatefulWidget {
 class _ClassesScreenState extends State<ClassesScreen> {
   late Future<List<Classe>> futureClasses;
   final TextEditingController searchController = TextEditingController();
-
+  String searchQurey = "";
   @override
   void initState() {
     super.initState();
@@ -122,6 +122,9 @@ class _ClassesScreenState extends State<ClassesScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: TextField(
             controller: searchController,
+            onChanged: (value) => setState(() {
+              searchQurey = value;
+            }),
             decoration: InputDecoration(
               hintText: "Rechercher une classe...",
               prefixIcon: const Icon(Icons.search),
@@ -133,6 +136,9 @@ class _ClassesScreenState extends State<ClassesScreen> {
                       icon: const Icon(Icons.clear),
                       onPressed: () {
                         searchController.clear();
+                        setState(() {
+                          searchQurey = "";
+                        });
                       },
                     )
                   : null,

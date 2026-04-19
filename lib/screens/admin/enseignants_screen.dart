@@ -12,6 +12,7 @@ class EnseignantsScreen extends StatefulWidget {
 class _EnseignantsScreenState extends State<EnseignantsScreen> {
   late Future<List<Enseignant>> futureEnseignants;
   final TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
 
   @override
   void initState() {
@@ -114,15 +115,21 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: TextField(
             controller: searchController,
+            onChanged: (value) => setState(() {
+              searchQuery = value;
+            }),
             decoration: InputDecoration(
               hintText: "Rechercher un enseignant...",
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(borderRadius: .circular(8)),
-              suffixIcon: searchController.text.isNotEmpty
+              suffixIcon: searchQuery.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
                       onPressed: () {
                         searchController.clear();
+                        setState(() {
+                          searchQuery = "";
+                        });
                       },
                     )
                   : null,

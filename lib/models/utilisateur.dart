@@ -13,7 +13,7 @@ class Utilisateur {
   });
   factory Utilisateur.fromJson(Map<String, dynamic> json) {
     return Utilisateur(
-      id: json["user_id"],
+      id: json["user_id"] ?? json["id"],
       nom: json["nom"],
       prenom: json["prenom"],
       role: roleFromString(json["role"]),

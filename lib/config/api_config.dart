@@ -1,6 +1,7 @@
 class ApiConfig {
-static const baseUrl = "http://172.31.211.8/gest_absence_api"; // Enlève /gest_absence_api ici
-static const login = "$baseUrl/auth/login.php";
+  static const baseUrl =
+      "http://192.168.1.27:8000/gest_absence_api"; // Enlève /gest_absence_api ici
+  static const login = "$baseUrl/auth/login.php";
 
   static const classes = "$baseUrl/admin/classes.php";
 
