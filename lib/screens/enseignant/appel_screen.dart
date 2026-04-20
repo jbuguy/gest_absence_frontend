@@ -135,7 +135,7 @@ class _AppelScreenState extends State<AppelScreen> {
                             color: absences[etudiant.id] == true
                                 ? Colors.red
                                 : Colors.green,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: .w500,
                           ),
                         ),
                       );

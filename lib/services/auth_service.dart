@@ -57,6 +57,6 @@ class AuthService {
     final nom = prefs.getString("nom") ?? "";
     final prenom = prefs.getString("prenom") ?? "";
     final id = prefs.getInt("user_id") ?? -1;
-    return Utilisateur(id: id, nom: nom, prenom: prenom, role: role);
+    return Utilisateur(id: id, nom: nom, prenom: prenom, role: role, email: "");
   }
 }
