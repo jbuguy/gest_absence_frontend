@@ -129,7 +129,15 @@ class _AppelScreenState extends State<AppelScreen> {
                           });
                         },
                         title: Text("${etudiant.nom} ${etudiant.prenom}"),
-                        subtitle: Text("${etudiant.id}"),
+                        subtitle: Text(
+                          absences[etudiant.id] == true ? "Absent" : "Présent",
+                          style: TextStyle(
+                            color: absences[etudiant.id] == true
+                                ? Colors.red
+                                : Colors.green,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       );
                     },
                   ),

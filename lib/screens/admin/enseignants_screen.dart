@@ -107,6 +107,15 @@ class _EnseignantsScreenState extends State<EnseignantsScreen> {
                 ),
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text("Ajouter"),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ],
           ),

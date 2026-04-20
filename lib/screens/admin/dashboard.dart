@@ -43,22 +43,22 @@ class AdminDashboardContent extends StatelessWidget {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const .symmetric(horizontal: 16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: .start,
                 children: [
                   const SizedBox(height: 16),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const .symmetric(horizontal: 8),
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(32),
+                      padding: const .all(32),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: .circular(24),
                         color: colorScheme.primary,
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: .start,
                         children: [
                           Text(
                             "ADMINISTRATION",
@@ -66,15 +66,15 @@ class AdminDashboardContent extends StatelessWidget {
                               color: colorScheme.onPrimary.withValues(
                                 alpha: 0.8,
                               ),
-                              fontWeight: FontWeight.bold,
+                              fontWeight: .bold,
                             ),
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            "Bonjour, M. Dupont",
+                            "Bonjour, M. ",
                             style: theme.textTheme.headlineSmall?.copyWith(
                               color: colorScheme.onPrimary,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: .w900,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -83,6 +83,10 @@ class AdminDashboardContent extends StatelessWidget {
                             style: FilledButton.styleFrom(
                               backgroundColor: colorScheme.onPrimary.withValues(
                                 alpha: 0.2,
+                              ),
+                              padding: const .symmetric(
+                                horizontal: 10,
+                                vertical: 20,
                               ),
                               foregroundColor: colorScheme.onPrimary,
                             ),
@@ -96,7 +100,7 @@ class AdminDashboardContent extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 28, 8, 16),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: .spaceBetween,
                       children: [
                         Text(
                           "Statistiques",
@@ -132,11 +136,11 @@ class AdminDashboardContent extends StatelessWidget {
                     color: colorScheme.error,
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 28, 8, 16),
+                    padding: const .fromLTRB(8, 28, 8, 16),
                     child: Text(
                       "Accès rapide",
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: .bold,
                       ),
                     ),
                   ),
@@ -187,14 +191,14 @@ class _StatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const .only(bottom: 12),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        contentPadding: const .symmetric(horizontal: 20, vertical: 8),
         leading: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const .all(10),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: .circular(12),
           ),
           child: Icon(icon, color: color, size: 20),
         ),
@@ -207,7 +211,7 @@ class _StatCard extends StatelessWidget {
         trailing: Text(
           value,
           style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
+            fontWeight: .w900,
             color: theme.colorScheme.onSurface,
           ),
         ),
@@ -235,14 +239,14 @@ class _QuickAccessCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const .only(bottom: 12),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        contentPadding: const .symmetric(horizontal: 20, vertical: 8),
         leading: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const .all(10),
           decoration: BoxDecoration(
             color: colorScheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: .circular(12),
           ),
           child: Icon(
             Icons.chevron_right,
@@ -250,11 +254,8 @@ class _QuickAccessCard extends StatelessWidget {
             size: 20,
           ),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(subtitle),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: .bold)),
+        subtitle: Padding(padding: const .only(top: 4), child: Text(subtitle)),
         trailing: Icon(icon, color: colorScheme.onSurfaceVariant, size: 20),
         onTap: onTap,
       ),

@@ -121,6 +121,13 @@ class _SeancesScreenState extends State<SeancesScreen> {
                 ),
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text("Ajouter"),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(borderRadius: .circular(12)),
+                ),
               ),
             ],
           ),
