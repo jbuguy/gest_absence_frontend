@@ -3,6 +3,8 @@ import 'package:gest_absence_frontend/models/absence.dart';
 import 'package:gest_absence_frontend/services/absence_service.dart';
 import 'package:gest_absence_frontend/services/auth_service.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class AbsencesScreen extends StatefulWidget {
   const AbsencesScreen({super.key});
@@ -59,18 +61,31 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: .start,
                 children: [
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: TopCard(total: totalAbsences),
+                    child: Column(
+                      children: [
+                        TopCard(total: totalAbsences),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: () async {
+                            final absences = snapshot.data ?? [];
+                            await generatePdf(absences);
+                          },
+                          icon: const Icon(Icons.picture_as_pdf),
+                          label: const Text("Générer PDF"),
+                        ),
+                      ],
+                    ),
                   ),
                   if (totalAbsences > 0)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8, 24, 8, 16),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: .spaceBetween,
                         children: [
                           Text(
                             "Detail par matiere",
@@ -107,6 +122,41 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
         );
       },
     );
+  }
+
+  Future<void> generatePdf(List<Absence> absences) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                "Rapport des Absences",
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 16),
+              pw.Text("Année universitaire 2025-2026"),
+              pw.SizedBox(height: 16),
+
+              pw.TableHelper.fromTextArray(
+                headers: ["Matière", "Date", "Heure", "Statut"],
+                data: absences.map((a) {
+                  return [a.nomMatiere, a.dateSeance, a.heureDebut, a.statut];
+                }).toList(),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(onLayout: (format) async => pdf.save());
   }
 }
 
